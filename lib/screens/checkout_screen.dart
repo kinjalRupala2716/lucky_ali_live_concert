@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/widgets.dart';
+import 'package:knocksence_flutter_webapp/screens/thankyou_screen.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
 
@@ -399,20 +400,30 @@ class _DesktopViewState extends State<DesktopView> {
               height: 30,
             ),
             Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: GetColor().getColorFromHex(AppColors().orange),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThankYouScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: GetColor().getColorFromHex(AppColors().orange),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 2,
+                    ),
                   ),
-                ),
-                child: const Text(
-                  "PROCEED TO PAY",
-                  style: TextStyle(color: Colors.white, fontSize: 25),
+                  child: const Text(
+                    "PROCEED TO PAY",
+                    style: TextStyle(color: Colors.white, fontSize: 25),
+                  ),
                 ),
               ),
             )
