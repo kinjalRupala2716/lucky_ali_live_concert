@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 
 class CommonWebAppbar extends StatefulWidget {
@@ -19,7 +17,7 @@ class _CommonWebAppbarState extends State<CommonWebAppbar> {
       children: [
         Image.asset(
           "assets/logos/KnockScenseLogoWhite2.png",
-          height: MediaQuery.of(context).size.height / 6,
+          // height: MediaQuery.of(context).size.height / 6,
           width: MediaQuery.of(context).size.width / 3,
         ),
         Container(
@@ -47,3 +45,4 @@ class _CommonWebAppbarState extends State<CommonWebAppbar> {
     );
   }
 }
+

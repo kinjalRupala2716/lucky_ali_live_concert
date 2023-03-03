@@ -1,0 +1,74 @@
+BASE_URL: "https://knocksense-prod.cartoonmango.com/api/v1/"
+GET_LOCATIONS_LIST:  https://knocksense-prod.cartoonmango.com/api/v1/users/locality
+GET_EVENTS_BASED_ON_LOCATION: https://knocksense-prod.cartoonmango.com/api/v1/event/web-events?location_id=7
+GET_EVENTS_BASED_ON_SEARCH: https://knocksense-prod.cartoonmango.com/api/v1/event/web-events?location_id=1&search=Day
+GET_ALL_EVENTS: https://knocksense-prod.cartoonmango.com/api/v1/event/web-events
+GET_EVENT_DETAILS: https://knocksense-prod.cartoonmango.com/api/v1/event/detail/{event_id}
+
+https://events.knocksense.com/
+
+SIGNIN
+==============
+
+fetch("https://knocksense-prod.cartoonmango.com/api/v1/users/sign-in", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-GB,en",
+    "content-type": "application/json",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "sec-gpc": "1"
+  },
+  "referrer": "http://192.168.1.11:3000/",
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "body": "{\"mobile\":\"9698414972\",\"is_from_event_booking_site\":1}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "omit"
+);
+
+VERIFY OTP
+=============
+fetch("https://knocksense-prod.cartoonmango.com/api/v1/users/verify-otp", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-GB,en",
+    "content-type": "application/json",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "sec-gpc": "1"
+  },
+  "referrer": "http://192.168.1.11:3000/",
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "body": "{\"mobile\":\"9698414972\",\"otp\":1980}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "omit"
+);
+
+curl 'https://knocksense-prod.cartoonmango.com/api/v1/event/157/book-ticket' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en' \
+  -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA4NDk5NTM4LCJqdGkiOiI3N2E4YzhhYjY0MWU0ZTlhYTVjMmIyOWMyZjRjZDMyMyIsInVzZXJfaWQiOjE4ODUzfQ.x9rsbdg0JSvmrM7H39B8Ik-dSCc6tn9VuUV9H4FiHw8' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://192.168.1.11:3000' \
+  -H 'Referer: http://192.168.1.11:3000/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: cross-site' \
+  -H 'Sec-GPC: 1' \
+  -H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1' \
+  --data-raw '{"tickets":[{"ticket_id":188,"quantity":1}],"attendee_list":[{"name":"vignesh","mobile":"9698414972"}]}' \
+  --compressed
+
+
+  STAGING PAYTM CONFIG
+  PAYTM_HOST: "https://securegw-stage.paytm.in/",
+  PAYTM_MID: "bCbVKQ54451720728205",
+
+  PRODUCTION
+  PAYTM_HOST: "https://securegw.paytm.in/",
+  PAYTM_MID: "uPZvfY66447257997053",

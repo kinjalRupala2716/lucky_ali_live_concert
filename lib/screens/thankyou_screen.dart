@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:knocksence_flutter_webapp/providers/get_location_provider.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
 
 class ThankYouScreen extends StatefulWidget {
-  const ThankYouScreen({super.key});
+  const ThankYouScreen(
+      {super.key,
+      required this.name,
+      required this.mobile,
+      required this.image});
+
+  final String name;
+  final String mobile;
+  final String image;
 
   @override
   State<ThankYouScreen> createState() => _ThankYouScreenState();
@@ -12,14 +21,16 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth > 1200) {
-        return const DesktopView();
-      } else if (constraint.maxWidth < 800) {
-        return const MobileView();
-      } else if (constraint.maxWidth >= 800) {
-        return const TabletView();
-      }
-      return Container();
+      // if (constraint.maxWidth > 1200) {
+      //   return const DesktopView();
+      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+      //   return const TabletView();
+      // }
+      return MobileView(
+        name: widget.name,
+        mobile: widget.mobile,
+        image: widget.image,
+      );
     });
   }
 }
@@ -35,6 +46,7 @@ class _DesktopViewState extends State<DesktopView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -225,13 +237,29 @@ class _DesktopViewState extends State<DesktopView> {
 }
 
 class MobileView extends StatefulWidget {
-  const MobileView({super.key});
-
+  const MobileView(
+      {super.key,
+      required this.name,
+      required this.mobile,
+      required this.image});
+  final String name;
+  final String mobile;
+  final String image;
   @override
   State<MobileView> createState() => _MobileViewState();
 }
 
 class _MobileViewState extends State<MobileView> {
+  late GetLocactionProvider getLocactionProvider;
+  late GetLocactionProvider checkoutProvider;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // print(widget.attendeeData?.plan.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -287,9 +315,9 @@ class _MobileViewState extends State<MobileView> {
                           const SizedBox(
                             width: 20,
                           ),
-                          const Text(
-                            "Exmple name",
-                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          Text(
+                            widget.name.toString(),
+                            style:const TextStyle(color: Colors.white, fontSize: 20),
                           ),
                         ],
                       ),
@@ -305,9 +333,9 @@ class _MobileViewState extends State<MobileView> {
                           const SizedBox(
                             width: 20,
                           ),
-                          const Text(
-                            "1234567890",
-                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          Text(
+                            widget.mobile,
+                            style: const TextStyle(color: Colors.white, fontSize: 20),
                           ),
                         ],
                       )
@@ -343,7 +371,7 @@ class _MobileViewState extends State<MobileView> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   color: GetColor().getColorFromHex(AppColors().orange),
-                  child: Image.asset("assets/images/luckyaliSquare.png"),
+                  child: Image.network(widget.image),
                 ),
               ),
               const SizedBox(

@@ -1,11 +1,36 @@
+// ignore_for_file: unused_local_variable
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:knocksence_flutter_webapp/commom_widget/common_web_appbar.dart';
+import 'package:knocksence_flutter_webapp/providers/get_location_provider.dart';
 import 'package:knocksence_flutter_webapp/screens/thankyou_screen.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
+import 'package:paytm_allinonesdk/paytm_allinonesdk.dart';
+import 'package:provider/provider.dart';
 
 class CheckOutScreen extends StatefulWidget {
-  const CheckOutScreen({super.key});
+  const CheckOutScreen({
+    super.key,
+    required this.id,
+    required this.data,
+    required this.price,
+    required this.quantity,
+    required this.tId,
+    // required this.name,
+  });
+
+  final int id;
+  final List data;
+
+  final double price;
+  final int quantity;
+  final int tId;
+  // final String name;
 
   @override
   State<CheckOutScreen> createState() => _CheckOutScreenState();
@@ -13,16 +38,29 @@ class CheckOutScreen extends StatefulWidget {
 
 class _CheckOutScreenState extends State<CheckOutScreen> {
   @override
+  void initState() {
+    super.initState();
+    Provider.of<GetLocactionProvider>(context, listen: false)
+        .checkoutProvider(widget.id);
+
+    log("ticketId____${widget.tId}");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth > 1200) {
-        return const DesktopView();
-      } else if (constraint.maxWidth < 800) {
-        return const MobileView();
-      } else if (constraint.maxWidth >= 800) {
-        return const TabletView();
-      }
-      return Container();
+      // if (constraint.maxWidth > 1200) {
+      //   return const DesktopView();
+      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+      //   return const TabletView();
+      // }
+      return MobileView(
+        price: widget.price,
+        id: widget.id,
+        data: widget.data, tId: widget.tId,
+        quantity: widget.quantity,
+        // name: widget.name,
+      );
     });
   }
 }
@@ -38,6 +76,7 @@ class _DesktopViewState extends State<DesktopView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -395,12 +434,12 @@ class _DesktopViewState extends State<DesktopView> {
             Center(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ThankYouScreen(),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const ThankYouScreen(name: ""),
+                  //   ),
+                  // );
                 },
                 child: Container(
                   padding:
@@ -426,13 +465,47 @@ class _DesktopViewState extends State<DesktopView> {
 }
 
 class MobileView extends StatefulWidget {
-  const MobileView({super.key});
+  const MobileView(
+      {super.key,
+      required this.id,
+      required this.data,
+      required this.price,
+      required this.quantity,
+      required this.tId
+      // required this.name,
+      });
+
+  final int id;
+  final double price;
+  final int quantity;
+  final List data;
+  final int tId;
+
+  // final AttendeeData? attendeeData;
 
   @override
   State<MobileView> createState() => _MobileViewState();
 }
 
 class _MobileViewState extends State<MobileView> {
+  late GetLocactionProvider getLocactionProvider;
+  late GetLocactionProvider checkoutProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+
+    checkoutProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+
+    checkoutProvider.checkoutProvider(widget.id);
+
+    // print(widget.attendeeData?.plan.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -442,43 +515,46 @@ class _MobileViewState extends State<MobileView> {
           toolbarHeight: MediaQuery.of(context).size.height / 7,
           backgroundColor: Colors.black,
           title: const CommonWebAppbar()),
-      body: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return [sliverAppBarWidget()];
-          },
-          body: Column(
-            children: [
-              Expanded(
-                  child: SingleChildScrollView(
-                // physics: const NeverScrollableScrollPhysics(),
-                child: Column(children: [
-                  Container(
-                    // height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _initialWidget(),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          // _endWidget(),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 30,
-                          ),
-                        ],
+      body: Consumer<GetLocactionProvider>(builder: (context, value, _) {
+        return NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return [sliverAppBarWidget()];
+            },
+            body: Column(
+              children: [
+                Expanded(
+                    child: SingleChildScrollView(
+                  // physics: const NeverScrollableScrollPhysics(),
+                  child: Column(children: [
+                    Container(
+                      // height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            _initialWidget(),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            // _endWidget(),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 30,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ]),
-              ))
-            ],
-          )),
+                  ]),
+                ))
+              ],
+            ));
+      }),
     );
   }
 
@@ -499,10 +575,12 @@ class _MobileViewState extends State<MobileView> {
               child: Container(
                 // height: MediaQuery.of(context).size.height,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -513,7 +591,11 @@ class _MobileViewState extends State<MobileView> {
   }
 
   _initialWidget() {
-    return Container(
+    String formatDate(DateTime date) => DateFormat("dd MMM yyyy").format(date);
+
+    String formatTime(DateTime time) => DateFormat("kk:mm a").format(time);
+
+    return SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,22 +630,30 @@ class _MobileViewState extends State<MobileView> {
                 Container(
                   height: MediaQuery.of(context).size.height / 5,
                   width: MediaQuery.of(context).size.width / 2.7,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                       image: DecorationImage(
                           fit: BoxFit.fill,
-                          image: AssetImage("assets/images/luckyali2.png"))),
+                          image: NetworkImage(getLocactionProvider
+                                  .eventDetailModel?.coverImage ??
+                              ""))),
                 ),
                 const SizedBox(
                   width: 20,
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text(
-                    "Knocksence Lucky\nAli Live",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    child: Text(
+                      // "name",
+                      getLocactionProvider.eventDetailModel?.name ?? "",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700),
+                      textAlign: TextAlign.justify,
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
@@ -589,9 +679,15 @@ class _MobileViewState extends State<MobileView> {
                       const SizedBox(
                         width: 10,
                       ),
-                      const Text(
-                        "Sun, 26 Feb 2023",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: Text(
+                          "${formatDate(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())}  ",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
+                        ),
                       )
                     ],
                   ),
@@ -607,9 +703,12 @@ class _MobileViewState extends State<MobileView> {
                       const SizedBox(
                         width: 10,
                       ),
-                      const Text(
-                        "07:00 PM Onwards",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      Text(
+                        "${formatTime(
+                                getLocactionProvider.eventDetailModel?.date ??
+                                    DateTime.now())} Onwards",
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 15),
                       )
                     ],
                   ),
@@ -619,7 +718,7 @@ class _MobileViewState extends State<MobileView> {
                   Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
+                        padding: const EdgeInsets.only(bottom: 0),
                         child: Image.asset(
                           "assets/icons/locationWhiteIcon.png",
                           height: 20,
@@ -630,13 +729,17 @@ class _MobileViewState extends State<MobileView> {
                       ),
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 3,
-                        child: const Text(
-                          "Club 07 Rd, off Sardar Patel Ring Road, Shela Gujrat 380059, Ahmedabad",
+                        child: Text(
+                          // "Club 07 Rd, off Sardar Patel Ring Road, Shela Gujrat 380059, Ahmedabad",
+                          getLocactionProvider.eventDetailModel?.location
+                                  .toString() ??
+                              "",
                           softWrap: true,
                           textAlign: TextAlign.start,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 15),
                         ),
                       )
                     ],
@@ -683,54 +786,117 @@ class _MobileViewState extends State<MobileView> {
                 const SizedBox(
                   height: 20,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Name Of User",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "1234567890",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700),
-                        )
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [
-                        Text(
-                          "₹ 849",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "Unsubscribed",
-                          style: TextStyle(
-                              color: Colors.orange,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
-                        )
-                      ],
-                    ),
-                  ],
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     Column(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       children: [
+                //          Text(
+                //           widget.name,
+                //           style: TextStyle(
+                //               color: Colors.black,
+                //               fontSize: 17,
+                //               fontWeight: FontWeight.w700),
+                //         ),
+                //         const SizedBox(
+                //           height: 30,
+                //         ),
+                //         Text(
+                //           widget.name,
+                //           style: const TextStyle(
+                //               color: Colors.black,
+                //               fontSize: 17,
+                //               fontWeight: FontWeight.w700),
+                //         )
+                //       ],
+                //     ),
+                //     Column(
+                //       crossAxisAlignment: CrossAxisAlignment.end,
+                //       children: [
+                //         const Text(
+                //           "Price",
+                //           style: TextStyle(
+                //               color: Colors.black,
+                //               fontSize: 15,
+                //               fontWeight: FontWeight.w700),
+                //         ),
+                //         const SizedBox(
+                //           height: 30,
+                //         ),
+                //         Text(
+                //           widget.attendeeData?.plan.toString() ?? "fffhhhff",
+                //           style: const TextStyle(
+                //               color: Colors.orange,
+                //               fontSize: 20,
+                //               fontWeight: FontWeight.w700),
+                //         )
+                //       ],
+                //     ),
+                //   ],
+                // )
+                SizedBox(
+                  height: 200,
+                  width: double.maxFinite,
+                  child: ListView.separated(
+                    itemCount: widget.data.length,
+                    itemBuilder: (context, index) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.data[index]['name'],
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                widget.data[index]['mobile'],
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700),
+                              )
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                widget.data[index]['price'],
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                widget.data[index]['plan'],
+                                style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700),
+                              )
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        height: 10,
+                      );
+                    },
+                  ),
                 )
               ]),
             ),
@@ -743,17 +909,17 @@ class _MobileViewState extends State<MobileView> {
                   borderRadius: BorderRadius.circular(20), color: Colors.white),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    "Total",
+                children: [
+                  const Text(
+                    "Total price",
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.w700),
                   ),
                   Text(
-                    "₹ 900.00",
-                    style: TextStyle(
+                    widget.price.round().toString(),
+                    style: const TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.w700),
@@ -766,13 +932,18 @@ class _MobileViewState extends State<MobileView> {
             ),
             Center(
               child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ThankYouScreen(),
-                    ),
-                  );
+                onTap: () async {
+                  log("id____${widget.id}");
+                  log("price____${widget.price}");
+                  log("ticketId____${widget.tId}");
+
+                  initialTransaction();
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const ThankYouScreen(),
+                  //   ),
+                  // );
                 },
                 child: Container(
                   padding:
@@ -794,6 +965,74 @@ class _MobileViewState extends State<MobileView> {
             )
           ],
         ));
+  }
+
+  initialTransaction() async {
+    Map<String, dynamic> data = {
+      "tickets": [
+        {"ticket_id": widget.tId, "quantity": widget.quantity}
+      ],
+      "total": widget.price,
+      "is_web_booking": true
+    };
+    log("ticketId____${widget.tId}");
+
+    final res = await context
+        .read<GetLocactionProvider>()
+        .ticketPaymentProvider(data, widget.id);
+
+    log("id========$res");
+
+    String oId = res['data']['order_id'];
+
+    log('order id-------------------$oId');
+
+    if (res["code"] == 900) {
+      log("response of ticket payment____________$res");
+
+      String mId = res['data']['mid'];
+      String callbackUrl = res['data']['callback_url'];
+      String txnToken = res['data']['txnToken'];
+      String amount = res['data']['amount'];
+      bool isStaging = res['data']['is_staging'];
+      String result;
+
+      var response = AllInOneSdk.startTransaction(
+          mId, oId, amount, txnToken, callbackUrl, isStaging, true);
+      response.then((value) {
+        log(value.toString());
+        setState(() {
+          result = value.toString();
+        });
+
+        Provider.of<GetLocactionProvider>(context, listen: false)
+            .verifyOrderIdProvider(
+          oId.toString(),
+          context,
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ThankYouScreen(
+              name: widget.data[0]["name"],
+              mobile: widget.data[0]["mobile"],
+              image: getLocactionProvider.eventDetailModel?.coverImage ?? "",
+            ),
+          ),
+        );
+      }).catchError((onError) {
+        if (onError is PlatformException) {
+          setState(() {
+            result = "${onError.message} \n  ${onError.details}";
+          });
+        } else {
+          setState(() {
+            result = onError.toString();
+          });
+        }
+      });
+    }
   }
 }
 
@@ -885,7 +1124,7 @@ class _TabletViewState extends State<TabletView> {
   }
 
   _initialWidget() {
-    return Container(
+    return SizedBox(
         width: MediaQuery.of(context).size.width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1139,12 +1378,12 @@ class _TabletViewState extends State<TabletView> {
             Center(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ThankYouScreen(),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const ThankYouScreen(id: 0),
+                  //   ),
+                  // );
                 },
                 child: Container(
                   padding:

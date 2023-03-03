@@ -1,13 +1,23 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:knocksence_flutter_webapp/commom_widget/common_toast.dart';
 import 'package:knocksence_flutter_webapp/commom_widget/common_web_appbar.dart';
+import 'package:knocksence_flutter_webapp/models/event_detail_model.dart';
+import 'package:knocksence_flutter_webapp/providers/get_location_provider.dart';
 import 'package:knocksence_flutter_webapp/screens/checkout_screen.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
+import 'package:knocksence_flutter_webapp/utils/my_sharepreferences.dart';
+import 'package:provider/provider.dart';
 
 class TicketScreen extends StatefulWidget {
-  const TicketScreen({super.key});
+  const TicketScreen({super.key, required this.id});
 
+  final int id;
   @override
   State<TicketScreen> createState() => _TicketScreenState();
 }
@@ -16,20 +26,26 @@ class _TicketScreenState extends State<TicketScreen> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth > 1200) {
-        return const DesktopView();
-      } else if (constraint.maxWidth < 800) {
-        return const MobileView();
-      } else if (constraint.maxWidth >= 800) {
-        return const TabletView();
-      }
-      return Container();
+      // if (constraint.maxWidth > 1200) {
+      //   return DesktopView(
+      //     id: widget.id,
+      //   );
+      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+      //   return TabletView(
+      //     id: widget.id,
+      //   );
+      // }
+      return MobileView(
+        id: widget.id,
+      );
     });
   }
 }
 
 class DesktopView extends StatefulWidget {
-  const DesktopView({super.key});
+  const DesktopView({super.key, required this.id});
+
+  final int id;
 
   @override
   State<DesktopView> createState() => _DesktopViewState();
@@ -38,9 +54,20 @@ class DesktopView extends StatefulWidget {
 class _DesktopViewState extends State<DesktopView> {
   int count = 0;
 
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -96,7 +123,7 @@ class _DesktopViewState extends State<DesktopView> {
       automaticallyImplyLeading: false,
       toolbarHeight: 85,
       backgroundColor: Colors.transparent,
-      expandedHeight: MediaQuery.of(context).size.height,
+      expandedHeight: MediaQuery.of(context).size.height / 2,
       floating: true,
       pinned: false,
       flexibleSpace: FlexibleSpaceBar(
@@ -108,10 +135,12 @@ class _DesktopViewState extends State<DesktopView> {
               child: Container(
                 height: MediaQuery.of(context).size.height,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -122,11 +151,11 @@ class _DesktopViewState extends State<DesktopView> {
   }
 
   Widget _initialWidget() {
-    List ticketName = [
-      "Platinum - General Area",
-      "Select Mini - Premium Area",
-      "Select - VIP Area",
-    ];
+    // List ticketName = [
+    //   "Platinum - General Area",
+    //   "Select Mini - Premium Area",
+    //   "Select - VIP Area",
+    // ];
 
     return SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -162,7 +191,8 @@ class _DesktopViewState extends State<DesktopView> {
               // width: MediaQuery.of(context).size.width / 1.5,
               child: ListView.separated(
                 // padding: EdgeInsets.zero,
-                itemCount: 3,
+                itemCount:
+                    getLocactionProvider.eventDetailModel?.ticket.length ?? 00,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return GestureDetector(
@@ -171,7 +201,10 @@ class _DesktopViewState extends State<DesktopView> {
                         backgroundColor: Colors.black,
                         context: context,
                         builder: (context) {
-                          return _initialWidget1(count);
+                          return _initialWidget1(
+                              count,
+                              getLocactionProvider
+                                  .eventDetailModel!.ticket[index]);
                         },
                       );
                     },
@@ -193,24 +226,34 @@ class _DesktopViewState extends State<DesktopView> {
                                 const SizedBox(
                                   width: 20,
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      ticketName[index],
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.w800),
-                                    ),
-                                    const Text(
-                                      "Early Bird Ticket Live Now!\nFree Platinum Membership",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        getLocactionProvider.eventDetailModel
+                                                ?.ticket[index].name
+                                                .toString() ??
+                                            "",
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w800),
                                       ),
-                                    )
-                                  ],
+                                      Text(
+                                        getLocactionProvider.eventDetailModel
+                                                ?.ticket[index].description
+                                                .toString() ??
+                                            "",
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 )
                               ],
                             ),
@@ -234,19 +277,11 @@ class _DesktopViewState extends State<DesktopView> {
         ));
   }
 
-  Widget _initialWidget1(int count) {
-    var location = [
-      // AppStrings.eventHint,
-      "View Details",
-      "Ahmedabad",
-      "surat",
-      "pune",
-      "banglore"
-    ];
+  Widget _initialWidget1(int count, Ticket ticket) {
     String fixVelue = "View Details";
 
-    TextEditingController nameController = TextEditingController();
-    TextEditingController numberController = TextEditingController();
+    List<TextEditingController> nameController = [];
+    List<TextEditingController> numberController = [];
 
     return StatefulBuilder(builder: (context, setState) {
       return SingleChildScrollView(
@@ -317,9 +352,9 @@ class _DesktopViewState extends State<DesktopView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Platinum - General Area",
-                        style: TextStyle(
+                      Text(
+                        ticket.name.toString(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 40,
                             fontWeight: FontWeight.w700),
@@ -330,9 +365,10 @@ class _DesktopViewState extends State<DesktopView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "₹ 849",
-                            style: TextStyle(fontSize: 30, color: Colors.black),
+                          Text(
+                            ticket.price.toString(),
+                            style: const TextStyle(
+                                fontSize: 30, color: Colors.black),
                           ),
                           count < 1
                               ? Row(
@@ -432,18 +468,20 @@ class _DesktopViewState extends State<DesktopView> {
                           child: DropdownButton<String>(
                             dropdownColor: Colors.white,
                             isExpanded: true,
+                            hint: const Text("View Details"),
                             icon: const Icon(
                               Icons.arrow_drop_down,
                               color: Color.fromRGBO(0, 0, 0, 1),
                               size: 50,
                             ),
-                            items: location.map((String value) {
+                            items: getLocactionProvider.eventDetailList
+                                .map((value) {
                               return DropdownMenuItem<String>(
-                                value: value,
+                                value: value.description.toString(),
                                 child: Text(
-                                  value,
+                                  value.description.toString(),
                                   style: const TextStyle(
-                                      color: Colors.black, fontSize: 30),
+                                      color: Colors.black, fontSize: 20),
                                 ),
                               );
                             }).toList(),
@@ -486,6 +524,7 @@ class _DesktopViewState extends State<DesktopView> {
                   // height: MediaQuery.of(context).size.height,
                   width: double.maxFinite,
                   child: ListView.separated(
+                      physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
                         return Container(
@@ -518,7 +557,7 @@ class _DesktopViewState extends State<DesktopView> {
                                         MediaQuery.of(context).size.width / 2.5,
                                     height: 100,
                                     child: TextFormField(
-                                      controller: nameController,
+                                      controller: nameController[index],
                                       textInputAction: TextInputAction.next,
                                       keyboardType: TextInputType.name,
                                       decoration: const InputDecoration(
@@ -543,7 +582,7 @@ class _DesktopViewState extends State<DesktopView> {
                                         MediaQuery.of(context).size.width / 2.5,
                                     height: 70,
                                     child: TextFormField(
-                                      controller: numberController,
+                                      controller: numberController[index],
                                       textInputAction: TextInputAction.next,
                                       keyboardType: TextInputType.name,
                                       decoration: const InputDecoration(
@@ -568,33 +607,20 @@ class _DesktopViewState extends State<DesktopView> {
                 Center(
                   child: GestureDetector(
                     onTap: () {
+                      log("count______________$count");
                       if (count == 0) {
                         _showDialogBox();
-                      } else if (nameController.text.toString().isEmpty) {
-                        Fluttertoast.showToast(
-                            msg: "Please Enter Name",
-                            toastLength: Toast.LENGTH_SHORT,
-                            timeInSecForIosWeb: 1,
-                            textColor: Colors.white,
-                            webPosition: "bottom",
-                            webBgColor:
-                                GetColor().getColorFromHex(AppColors().orange),
-                            fontSize: 16.0);
-                      } else if (numberController.text.toString().isEmpty) {
-                        Fluttertoast.showToast(
-                            msg: "Please Enter Number",
-                            toastLength: Toast.LENGTH_SHORT,
-                            timeInSecForIosWeb: 1,
-                            textColor: Colors.white,
-                            webPosition: "bottom",
-                            webBgColor:
-                                GetColor().getColorFromHex(AppColors().orange),
-                            fontSize: 16.0);
                       } else {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CheckOutScreen()));
+                        GetLocactionProvider getLocactionProvider =
+                            Provider.of<GetLocactionProvider>(context,
+                                listen: false);
+
+                        Map data = {
+                          "mobile": numberController[count].text.toString(),
+                          "is_from_event_booking_site": 1
+                        };
+
+                        getLocactionProvider.signInProvider(data);
                       }
                     },
                     child: Container(
@@ -674,8 +700,9 @@ class _DesktopViewState extends State<DesktopView> {
 }
 
 class MobileView extends StatefulWidget {
-  const MobileView({super.key});
+  const MobileView({super.key, required this.id});
 
+  final int id;
   @override
   State<MobileView> createState() => _MobileViewState();
 }
@@ -683,8 +710,21 @@ class MobileView extends StatefulWidget {
 class _MobileViewState extends State<MobileView> {
   int count = 0;
 
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
+//         final locationBasedEventLIst =
+//         context.select((GetLocactionProvider g) => g.getEvetDetail(count));
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -733,7 +773,6 @@ class _MobileViewState extends State<MobileView> {
                 child: Column(
                   children: [
                     Container(
-                      // height: MediaQuery.of(context).size.height,
                       decoration: BoxDecoration(
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(50),
@@ -785,10 +824,12 @@ class _MobileViewState extends State<MobileView> {
               child: Container(
                 // height: MediaQuery.of(context).size.height,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -799,11 +840,11 @@ class _MobileViewState extends State<MobileView> {
   }
 
   Widget _initialWidget() {
-    List ticketName = [
-      "Platinum - General Area",
-      "Select Mini - Premium Area",
-      "Select - VIP Area",
-    ];
+    // List ticketName = [
+    //   "Platinum - General Area",
+    //   "Select Mini - Premium Area",
+    //   "Select - VIP Area",
+    // ];
 
     return SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -839,7 +880,8 @@ class _MobileViewState extends State<MobileView> {
               // width: MediaQuery.of(context).size.width / 1.5,
               child: ListView.separated(
                 // padding: EdgeInsets.zero,
-                itemCount: 3,
+                itemCount:
+                    getLocactionProvider.eventDetailModel?.ticket.length ?? 00,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return GestureDetector(
@@ -848,7 +890,10 @@ class _MobileViewState extends State<MobileView> {
                         backgroundColor: Colors.black,
                         context: context,
                         builder: (context) {
-                          return _initialWidget1(count);
+                          return _initialWidget1(
+                              count,
+                              getLocactionProvider
+                                  .eventDetailModel!.ticket[index]);
                         },
                       );
                     },
@@ -874,17 +919,28 @@ class _MobileViewState extends State<MobileView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      ticketName[index],
+                                      getLocactionProvider.eventDetailModel
+                                              ?.ticket[index].name ??
+                                          "",
                                       style: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 17,
                                           fontWeight: FontWeight.w800),
                                     ),
-                                    const Text(
-                                      "Early Bird Ticket Live Now!\nFree Platinum Membership",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
+                                    SizedBox(
+                                      width:
+                                          MediaQuery.of(context).size.width / 2,
+                                      child: Text(
+                                        getLocactionProvider.eventDetailModel
+                                                ?.ticket[index].description
+                                                .toString() ??
+                                            "",
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 15,
+                                        ),
                                       ),
                                     )
                                   ],
@@ -911,19 +967,18 @@ class _MobileViewState extends State<MobileView> {
         ));
   }
 
-  Widget _initialWidget1(int count) {
-    var location = [
-      // AppStrings.eventHint,
-      "View Details",
-      "Ahmedabad",
-      "surat",
-      "pune",
-      "banglore"
-    ];
-    String fixVelue = "View Details";
+  Widget _initialWidget1(
+    int count,
+    Ticket ticket,
+  ) {
+    String? fixVelue = "View Details";
 
-    TextEditingController nameController = TextEditingController();
-    TextEditingController numberController = TextEditingController();
+    // List<TextEditingController> nameController = [];
+    // List<TextEditingController> numberController = [];
+
+    List<Map<String, dynamic>> userDetail = [
+      // {"name": '', "mobile": '', "is_from_event_booking_site": 1},
+    ];
 
     return StatefulBuilder(builder: (context, setState) {
       return SingleChildScrollView(
@@ -994,9 +1049,12 @@ class _MobileViewState extends State<MobileView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Platinum - General Area",
-                        style: TextStyle(
+                      Text(
+                        // getLocactionProvider.eventDetailModel?.ticket[1].name ?? "",
+                        ticket.name.toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 25,
                             fontWeight: FontWeight.w700),
@@ -1007,18 +1065,26 @@ class _MobileViewState extends State<MobileView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "₹ 849",
-                            style: TextStyle(fontSize: 20, color: Colors.black),
+                          Text(
+                            // "₹ 849",
+                            ticket.price.toString(),
+                            style: const TextStyle(
+                                fontSize: 20, color: Colors.black),
                           ),
                           count < 1
                               ? Row(
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        count++;
+                                        setState(() {
+                                          count++;
 
-                                        setState(() {});
+                                          userDetail.add({
+                                            "name": '',
+                                            "mobile": '',
+                                            "is_from_event_booking_site": 1
+                                          });
+                                        });
                                       },
                                       child: Container(
                                         height: 20,
@@ -1048,9 +1114,15 @@ class _MobileViewState extends State<MobileView> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        count++;
+                                        setState(() {
+                                          count++;
 
-                                        setState(() {});
+                                          userDetail.add({
+                                            "name": '',
+                                            "mobile": '',
+                                            "is_from_event_booking_site": 1
+                                          });
+                                        });
                                       },
                                       child: Container(
                                         height: 20,
@@ -1106,7 +1178,8 @@ class _MobileViewState extends State<MobileView> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width / 2,
                         child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
+                          child: DropdownButton(
+                            hint: const Text("View Details"),
                             dropdownColor: Colors.white,
                             isExpanded: true,
                             icon: const Icon(
@@ -1114,13 +1187,14 @@ class _MobileViewState extends State<MobileView> {
                               color: Colors.black,
                               size: 30,
                             ),
-                            items: location.map((String value) {
+                            items: getLocactionProvider.eventDetailList
+                                .map((value) {
                               return DropdownMenuItem<String>(
-                                value: value,
+                                value: value.description.toString(),
                                 child: Text(
-                                  value,
+                                  value.description.toString(),
                                   style: const TextStyle(
-                                      color: Colors.black, fontSize: 20),
+                                      color: Colors.black, fontSize: 30),
                                 ),
                               );
                             }).toList(),
@@ -1142,7 +1216,7 @@ class _MobileViewState extends State<MobileView> {
                   height: 30,
                 ),
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                       color: GetColor().getColorFromHex(AppColors().pinkColor),
@@ -1153,7 +1227,7 @@ class _MobileViewState extends State<MobileView> {
                     style: TextStyle(
                         color:
                             GetColor().getColorFromHex(AppColors().maroonColor),
-                        fontSize: 15),
+                        fontSize: 12),
                   ),
                 ),
                 const SizedBox(
@@ -1165,6 +1239,8 @@ class _MobileViewState extends State<MobileView> {
                   child: ListView.separated(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
+                        // nameController.add(TextEditingController());
+                        // numberController.add(TextEditingController());
                         return Container(
                           color: Colors.black,
                           // height: 500,
@@ -1194,10 +1270,15 @@ class _MobileViewState extends State<MobileView> {
                                     width: MediaQuery.of(context).size.width,
                                     // height: 50,
                                     child: TextFormField(
-                                      controller: nameController,
+                                      // controller: nameController[index],
+                                      keyboardType: TextInputType.name,
+                                      textInputAction: TextInputAction.next,
                                       decoration: const InputDecoration(
                                           hintText: "Name",
                                           border: InputBorder.none),
+                                      onChanged: (value) {
+                                        userDetail[index]['name'] = value;
+                                      },
                                     ),
                                   ),
                                   const SizedBox(
@@ -1216,10 +1297,15 @@ class _MobileViewState extends State<MobileView> {
                                     width: MediaQuery.of(context).size.width,
                                     // height: 50,
                                     child: TextFormField(
-                                      controller: numberController,
+                                      // controller: numberController[index],
+                                      keyboardType: TextInputType.phone,
+                                      textInputAction: TextInputAction.done,
                                       decoration: const InputDecoration(
                                           hintText: "Contact Number",
                                           border: InputBorder.none),
+                                      onChanged: (value) {
+                                        userDetail[index]['mobile'] = value;
+                                      },
                                     ),
                                   ),
                                 ],
@@ -1238,33 +1324,98 @@ class _MobileViewState extends State<MobileView> {
                 ),
                 Center(
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      final double totalPrice = ticket.price * count;
+                      log("totalPrice----------${ticket.id}");
+
+                      log("userName_________-${userDetail.toString()}");
+
+                      log("count____________$count");
                       if (count == 0) {
                         _showDialogBox();
-                      } else if (nameController.text.toString().isEmpty) {
-                        Fluttertoast.showToast(
-                            msg: "Please Enter Name",
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor:
-                                GetColor().getColorFromHex(AppColors().orange),
-                            textColor: Colors.white,
-                            fontSize: 16.0);
-                      } else if (numberController.text.toString().isEmpty) {
-                        Fluttertoast.showToast(
-                            msg: "Please Enter Number",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor:
-                                GetColor().getColorFromHex(AppColors().orange),
-                            textColor: Colors.white,
-                            fontSize: 16.0);
+                      } else if (userDetail[0]["name"].toString().isEmpty) {
+                        CommonToast().commonFlutterToast("Enter your Name");
+                      } else if (userDetail[0]["mobile"].toString().isEmpty) {
+                        CommonToast()
+                            .commonFlutterToast("Enter your Mobile Number");
+                      } else if (userDetail[0]['mobile'].toString().length >
+                          10) {
+                        CommonToast().commonFlutterToast(
+                            "Number mut have 10 digit long");
                       } else {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CheckOutScreen()));
+                        // GetLocactionProvider getLocactionProvider =
+                        // ;
+                        Map data = {
+                          "mobile": userDetail[0]['mobile'],
+                          "is_from_event_booking_site": 1
+                        };
+
+                        // Map dataOtp = {
+                        //   "mobile": userDetail['mobile'],
+                        //   "is_from_event_booking_site": 1
+                        // };
+
+                        //  var res = Provider.of<GetLocactionProvider>(context,
+                        //           listen: false).signInProvider(data);
+                        var res = await context
+                            .read<GetLocactionProvider>()
+                            .signInProvider(data);
+                        if (res['code'] == 900) {
+                          log("mobile doe");
+                          final res1 = await context
+                              .read<GetLocactionProvider>()
+                              .otpVerifyProvider({
+                            "mobile": userDetail[0]['mobile'],
+                            "otp": res['otp'],
+                          });
+
+                          if (res1['code'] == 900) {
+                            log(res1['message']);
+                            log("donneeeeee");
+                            String token = res1["data"]["token"];
+
+                            log("Token__________________$token");
+
+                            MySharedPreferences.instance
+                                .setStringValue("token", token);
+
+                            // for (int i = 0; i < count; i++) {
+                            //   Map data = {
+                            //     "name": userDetail[i]["name"],
+                            //     "mobile": userDetail[i]["mobile"]
+                            //   };
+                            // }
+
+                            log("list___________$userDetail");
+                            Map res2 = await Provider.of<GetLocactionProvider>(
+                                    context,
+                                    listen: false)
+                                .bookTicketProvider({
+                              "tickets": [
+                                {"ticket_id": ticket.id, "quantity": count}
+                              ],
+                              "attendee_list": userDetail
+                            }, widget.id);
+
+                            log("res2______________$res2");
+                            if (res2['code'] == 900) {
+                              log("res2______________$res2");
+
+                              log("TicketId_____${ticket.id}");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CheckOutScreen(
+                                          id: widget.id,
+                                          tId: ticket.id,
+                                          data: res2['data']['Attendee_data'],
+                                          price: totalPrice,
+                                          quantity: count,
+                                        )),
+                              );
+                            }
+                          }
+                        }
                       }
                     },
                     child: Container(
@@ -1344,7 +1495,9 @@ class _MobileViewState extends State<MobileView> {
 }
 
 class TabletView extends StatefulWidget {
-  const TabletView({super.key});
+  const TabletView({super.key, required this.id});
+
+  final int id;
 
   @override
   State<TabletView> createState() => _TabletViewState();
@@ -1352,6 +1505,16 @@ class TabletView extends StatefulWidget {
 
 class _TabletViewState extends State<TabletView> {
   int count = 0;
+
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1455,10 +1618,12 @@ class _TabletViewState extends State<TabletView> {
               child: Container(
                 // height: MediaQuery.of(context).size.height,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -1506,7 +1671,8 @@ class _TabletViewState extends State<TabletView> {
             ),
             ListView.separated(
               padding: EdgeInsets.zero,
-              itemCount: 3,
+              itemCount:
+                  getLocactionProvider.eventDetailModel?.ticket.length ?? 00,
               shrinkWrap: true,
               itemBuilder: (context, index) {
                 return GestureDetector(
@@ -1515,7 +1681,10 @@ class _TabletViewState extends State<TabletView> {
                       backgroundColor: Colors.black,
                       context: context,
                       builder: (context) {
-                        return _initialWidget1(count);
+                        return _initialWidget1(
+                            count,
+                            getLocactionProvider
+                                .eventDetailModel!.ticket[index]);
                       },
                     );
                   },
@@ -1580,19 +1749,11 @@ class _TabletViewState extends State<TabletView> {
         ));
   }
 
-  Widget _initialWidget1(int count) {
-    var location = [
-      // AppStrings.eventHint,
-      "View Details",
-      "Ahmedabad",
-      "surat",
-      "pune",
-      "banglore"
-    ];
+  Widget _initialWidget1(int count, Ticket ticket) {
     String fixVelue = "View Details";
 
-    TextEditingController nameController = TextEditingController();
-    TextEditingController numberController = TextEditingController();
+    List<TextEditingController> nameController = [];
+    List<TextEditingController> numberController = [];
 
     return StatefulBuilder(builder: (context, setState) {
       return SingleChildScrollView(
@@ -1783,11 +1944,12 @@ class _TabletViewState extends State<TabletView> {
                               color: Colors.black,
                               size: 50,
                             ),
-                            items: location.map((String value) {
+                            items: getLocactionProvider.eventDetailList
+                                .map((value) {
                               return DropdownMenuItem<String>(
-                                value: value,
+                                value: value.description.toString(),
                                 child: Text(
-                                  value,
+                                  value.description.toString(),
                                   style: const TextStyle(
                                       color: Colors.black, fontSize: 30),
                                 ),
@@ -1859,7 +2021,7 @@ class _TabletViewState extends State<TabletView> {
                                   width: MediaQuery.of(context).size.width,
                                   // height: 50,
                                   child: TextFormField(
-                                    controller: nameController,
+                                    controller: nameController[index],
                                     textInputAction: TextInputAction.next,
                                     keyboardType: TextInputType.name,
                                     style: TextStyle(
@@ -1890,7 +2052,7 @@ class _TabletViewState extends State<TabletView> {
                                   width: MediaQuery.of(context).size.width,
                                   // height: 50,
                                   child: TextFormField(
-                                    controller: numberController,
+                                    controller: numberController[index],
                                     textInputAction: TextInputAction.done,
                                     keyboardType: TextInputType.phone,
                                     style: TextStyle(
@@ -1923,7 +2085,10 @@ class _TabletViewState extends State<TabletView> {
                     onTap: () {
                       if (count == 0) {
                         _showDialogBox();
-                      } else if (nameController.text.toString().isEmpty) {
+                      } else if (nameController[count]
+                          .text
+                          .toString()
+                          .isEmpty) {
                         Fluttertoast.showToast(
                             msg: "Please Enter Name",
                             gravity: ToastGravity.CENTER,
@@ -1932,7 +2097,10 @@ class _TabletViewState extends State<TabletView> {
                                 GetColor().getColorFromHex(AppColors().orange),
                             textColor: Colors.white,
                             fontSize: 20);
-                      } else if (numberController.text.toString().isEmpty) {
+                      } else if (numberController[count]
+                          .text
+                          .toString()
+                          .isEmpty) {
                         Fluttertoast.showToast(
                             msg: "Please Enter Number",
                             toastLength: Toast.LENGTH_SHORT,
@@ -1946,7 +2114,13 @@ class _TabletViewState extends State<TabletView> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const CheckOutScreen()));
+                                builder: (context) => CheckOutScreen(
+                                      id: widget.id,
+                                      data: const [],
+                                      tId: 1,
+                                      price: 0.0,
+                                      quantity: 0,
+                                    )));
                       }
                     },
                     child: Container(
@@ -1977,7 +2151,7 @@ class _TabletViewState extends State<TabletView> {
     return showDialog(
         builder: (context) {
           return AlertDialog(
-            actionsPadding: EdgeInsets.all(20),
+            actionsPadding: const EdgeInsets.all(20),
             actions: [
               TextButton(
                   onPressed: () {

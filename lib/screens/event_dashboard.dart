@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:knocksence_flutter_webapp/commom_widget/common_web_appbar.dart';
+import 'package:knocksence_flutter_webapp/models/get_location_model.dart';
+import 'package:knocksence_flutter_webapp/providers/get_location_provider.dart';
 import 'package:knocksence_flutter_webapp/screens/lucky_ali_live.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
+import 'package:provider/provider.dart';
 
 TextEditingController eventController = TextEditingController();
 
@@ -17,11 +23,11 @@ class _EventDashboardScreenState extends State<EventDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth > 1200) {
-        return const DesktopView();
-      } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
-        return const TabletView();
-      }
+      // if (constraint.maxWidth > 1200) {
+      //   return const DesktopView();
+      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+      //   return const TabletView();
+      // }
       return const MobileView();
     });
   }
@@ -35,42 +41,65 @@ class DesktopView extends StatefulWidget {
 }
 
 class _DesktopViewState extends State<DesktopView> {
-  var location = [
-    // AppStrings.eventHint,
-    "Event Location",
-    "Ahmedabad",
-    "surat",
-    "pune",
-    "banglore"
-  ];
+  // var location = [
+  //   // AppStrings.eventHint,
+  //   "Event Location",
+  //   "Ahmedabad",
+  //   "surat",
+  //   "pune",
+  //   "banglore"
+  // ];
   String fixVelue = "Event Location";
 
-  List imageList = [
-    "assets/images/sufinights.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-  ];
+  // List imageList = [
+  //   "assets/images/sufinights.png",
+  //   "assets/images/luckyali.png",
+  //   "assets/images/luckyali.png",
+  //   "assets/images/luckyali.png",
+  //   "assets/images/luckyali.png",
+  // ];
 
-  List sponcersList = [
-    "Sufi Nights Ft.",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-  ];
+  // List sponcersList = [
+  //   "Sufi Nights Ft.",
+  //   "Knocksense",
+  //   "Knocksense",
+  //   "Knocksense",
+  //   "Knocksense",
+  // ];
 
-  List features = [
-    "The Ali Brothers",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-  ];
+  // List features = [
+  //   "The Ali Brothers",
+  //   "Lucky Ali Live",
+  //   "Lucky Ali Live",
+  //   "Lucky Ali Live",
+  //   "Lucky Ali Live",
+  // ];
+
+  GetLocactionProvider? getLocactionProvider;
+  int? _mySelection;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Provider.of<GetLocactionProvider>(context, listen: false).getLocation();
+    Provider.of<GetLocactionProvider>(context, listen: false).getAllEvents();
+  }
+
+  int? lId;
+
+  String formatDate(DateTime date) => DateFormat("d MMM").format(date);
+
+  GetLocationModel? getLocationModel;
+  List<GetLocationModel> getLocationList = [];
 
   @override
   Widget build(BuildContext context) {
+    final locationList =
+        context.select((GetLocactionProvider g) => g.getLocationList);
+
+    final locationBasedEventLIst =
+        context.select((GetLocactionProvider g) => g.locationBasedEventsList);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
@@ -126,17 +155,17 @@ class _DesktopViewState extends State<DesktopView> {
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(20)),
               child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
+                child: DropdownButton<int>(
                   isExpanded: true,
                   icon: const Icon(
                     Icons.keyboard_arrow_down,
                     color: Colors.white,
                   ),
-                  items: location.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
+                  items: locationList.map((value) {
+                    return DropdownMenuItem<int>(
+                      value: value.id,
                       child: Text(
-                        value,
+                        value.name.toString(),
                         style:
                             const TextStyle(color: Colors.white, fontSize: 20),
                       ),
@@ -145,11 +174,25 @@ class _DesktopViewState extends State<DesktopView> {
                   onChanged: (newValue) {
                     setState(
                       () {
-                        fixVelue = newValue!;
+                        _mySelection = newValue;
+
+                        Provider.of<GetLocactionProvider>(context,
+                                listen: false)
+                            .getLocation();
                       },
                     );
+
+                    Provider.of<GetLocactionProvider>(context, listen: false)
+                        .getLocationBasedEvents(_mySelection ?? 1);
+
+                    log(newValue.toString());
                   },
-                  value: fixVelue,
+                  hint: const Text(
+                    "Select Location",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  // value: _mySelection,
+                  value: _mySelection,
                 ),
               ),
             ),
@@ -161,23 +204,25 @@ class _DesktopViewState extends State<DesktopView> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 1.1,
             child: GridView.builder(
-                padding: EdgeInsets.zero,
+                // padding: EdgeInsets.all(50),
                 scrollDirection: Axis.vertical,
-                // physics: const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
-                    childAspectRatio: 3.5 / 4,
-                    crossAxisSpacing: 0.0,
+                    childAspectRatio: 3 / 4,
+                    crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0),
-                itemCount: imageList.length,
+                itemCount: locationBasedEventLIst.length,
                 itemBuilder: (BuildContext ctx, index) {
                   return GestureDetector(
                     onTap: () {
+                      var id = locationBasedEventLIst[index].id;
+                      log("id___________________________$id");
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const LuckyAliLiveScreen()));
+                                  LuckyAliLiveScreen(id: id)));
                     },
                     child: Column(
                       children: [
@@ -187,19 +232,35 @@ class _DesktopViewState extends State<DesktopView> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(50),
-                                          topRight: Radius.circular(50))),
-                                  child: Image.asset(
-                                    imageList[index],
-                                    fit: BoxFit.fill,
+                                // Container(
+                                //   decoration: const BoxDecoration(
+                                //       color: Colors.white,
+                                //       borderRadius: BorderRadius.only(
+                                //           topLeft: Radius.circular(50),
+                                //           topRight: Radius.circular(50))),
+                                //   child: Image.network(
+                                //     locationBasedEventLIst[index].coverImage,
+                                //     fit: BoxFit.fill,
+                                //   ),
+                                // ),
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20)),
+                                  child: Container(
+                                    height:
+                                        MediaQuery.of(context).size.height / 4,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(
+                                                locationBasedEventLIst[index]
+                                                    .coverImage))),
                                   ),
                                 ),
                                 Container(
-                                  width: 264,
+                                  width: double.maxFinite,
                                   height: 80,
                                   padding: const EdgeInsets.only(
                                       top: 10, left: 15, bottom: 10),
@@ -213,17 +274,17 @@ class _DesktopViewState extends State<DesktopView> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        sponcersList[index],
+                                        locationBasedEventLIst[index].name,
                                         style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700),
                                       ),
-                                      Text(
-                                        features[index],
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700),
-                                      ),
+                                      // Text(
+                                      //   features[index],
+                                      //   style: const TextStyle(
+                                      //       fontSize: 18,
+                                      //       fontWeight: FontWeight.w700),
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -239,9 +300,12 @@ class _DesktopViewState extends State<DesktopView> {
                                   borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(50),
                                       bottomRight: Radius.circular(50))),
-                              child: const Text(
-                                "10\nFeb",
-                                style: TextStyle(
+                              child: Text(
+                                formatDate(locationBasedEventLIst[index].date),
+                                maxLines: 2,
+                                softWrap: true,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700),
                               ),
@@ -267,48 +331,41 @@ class MobileView extends StatefulWidget {
 }
 
 class _MobileViewState extends State<MobileView> {
-  var location = [
-    // AppStrings.eventHint,
-    "Event Location",
-    "Ahmedabad",
-    "surat",
-    "pune",
-    "banglore"
-  ];
-  String fixVelue = "Event Location";
+  int? _mySelection;
 
-  List imageList = [
-    "assets/images/sufinights.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-  ];
+  GetLocactionProvider? getLocactionProvider;
 
-  List sponcersList = [
-    "Sufi Nights Ft.",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-  ];
+  get index => null;
 
-  List features = [
-    "The Ali Brothers",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    Provider.of<GetLocactionProvider>(context, listen: false).getLocation();
+    Provider.of<GetLocactionProvider>(context, listen: false).getAllEvents();
+  }
+
+  int? lId;
+
+  String formatDate(DateTime date) => DateFormat("d MMM").format(date);
+
+  GetLocationModel? getLocationModel;
+  List<GetLocationModel> getLocationList = [];
 
   @override
   Widget build(BuildContext context) {
+    final locationList =
+        context.select((GetLocactionProvider g) => g.getLocationList);
+
+    final locationBasedEventLIst =
+        context.select((GetLocactionProvider g) => g.locationBasedEventsList);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
           automaticallyImplyLeading: false,
-          toolbarHeight: MediaQuery.of(context).size.height / 7,
+          // toolbarHeight: MediaQuery.of(context).size.height / 7,
           backgroundColor: Colors.black,
           title: const CommonWebAppbar()),
       body: SingleChildScrollView(
@@ -316,13 +373,13 @@ class _MobileViewState extends State<MobileView> {
         physics: const BouncingScrollPhysics(),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
-            padding: const EdgeInsets.only(left: 10, top: 10),
+            padding: const EdgeInsets.only(left: 20, top: 20),
             child: Text(
               AppStrings.event,
               style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: GetColor().getColorFromHex(AppColors().orange),
-                  fontSize: 40),
+                  fontSize: 30),
             ),
           ),
           const SizedBox(
@@ -342,6 +399,8 @@ class _MobileViewState extends State<MobileView> {
                         borderRadius: BorderRadius.circular(20)),
                     child: TextFormField(
                       controller: eventController,
+                      style: const TextStyle(color: Colors.white),
+                      cursorColor: Colors.orange,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: AppStrings.eventHint,
@@ -351,6 +410,21 @@ class _MobileViewState extends State<MobileView> {
                               GetColor().getColorFromHex(AppColors().hintColor),
                         ),
                       ),
+                      onChanged: (value) {
+                        Provider.of<GetLocactionProvider>(context,
+                                listen: false)
+                            .getSearchEvetDetail(
+                                1, eventController.text.toString());
+                        // setState(() {
+                        //   Provider.of<GetLocactionProvider>(context,
+                        //           listen: false)
+                        //       .getAllEvents();
+                        // });
+
+                        // Provider.of<GetLocactionProvider>(context,
+                        //         listen: false)
+                        //     .getAllEvents();
+                      },
                     ),
                   ),
                   Container(
@@ -360,18 +434,36 @@ class _MobileViewState extends State<MobileView> {
                         border: Border.all(color: Colors.grey, width: 4),
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(20)),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
+                    child:
+                        //  DropdownButton<GetLocationModel>(
+                        //   hint: Text("Select a user"),
+                        //   value: getLocationModel,
+                        //   onChanged: (newValue) {
+                        //     setState(() {
+                        //       getLocationModel = newValue;
+                        //     });
+                        //   },
+                        //   items: getLocationList.map((GetLocationModel user) {
+                        //     return DropdownMenuItem<GetLocationModel>(
+                        //       value: user,
+                        //       child: Text(
+                        //         user.name.toString(),
+                        //         style: const TextStyle(color: Colors.white),
+                        //       ),
+                        //     );
+                        //   }).toList(),
+                        // ),
+
+                        DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
                         isExpanded: true,
-                        icon: const Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                        items: location.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
+                        dropdownColor: Colors.black,
+                        items: locationList.map((countryone) {
+                          return DropdownMenuItem<int>(
+                            value: countryone
+                                .id, //locationList[index].data[index].name,
                             child: Text(
-                              value,
+                              countryone.name.toString(),
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 17),
                             ),
@@ -380,11 +472,26 @@ class _MobileViewState extends State<MobileView> {
                         onChanged: (newValue) {
                           setState(
                             () {
-                              fixVelue = newValue!;
+                              _mySelection = newValue;
+
+                              Provider.of<GetLocactionProvider>(context,
+                                      listen: false)
+                                  .getLocation();
                             },
                           );
+
+                          Provider.of<GetLocactionProvider>(context,
+                                  listen: false)
+                              .getLocationBasedEvents(_mySelection ?? 1);
+
+                          log(newValue.toString());
                         },
-                        value: fixVelue,
+                        hint: const Text(
+                          "Select Location",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        // value: _mySelection,
+                        value: _mySelection,
                       ),
                     ),
                   ),
@@ -394,28 +501,28 @@ class _MobileViewState extends State<MobileView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: SizedBox(
-              // color: Colors.red,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 1.1,
               child: GridView.builder(
-                  padding: EdgeInsets.zero,
+                  padding: const EdgeInsets.all(10),
                   scrollDirection: Axis.vertical,
                   physics: const NeverScrollableScrollPhysics(),
-                  // physics: AlwaysScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 3.2 / 5,
+                      childAspectRatio: 3.5 / 5,
                       crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0),
-                  itemCount: imageList.length,
+                      mainAxisSpacing: 0.0),
+                  itemCount: locationBasedEventLIst.length,
                   itemBuilder: (BuildContext ctx, index) {
                     return GestureDetector(
                       onTap: () {
+                        var id = locationBasedEventLIst[index].id;
+                        log("id___________________________-$id");
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const LuckyAliLiveScreen()));
+                                    LuckyAliLiveScreen(id: id)));
                       },
                       child: Column(
                         children: [
@@ -425,15 +532,22 @@ class _MobileViewState extends State<MobileView> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    height:
-                                        MediaQuery.of(context).size.height / 4,
-                                    width: MediaQuery.of(context).size.width,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: AssetImage(
-                                                "${imageList[index]}"))),
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20)),
+                                    child: Container(
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              5,
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              fit: BoxFit.fill,
+                                              image: NetworkImage(
+                                                  locationBasedEventLIst[index]
+                                                      .coverImage))),
+                                    ),
                                   ),
                                   Container(
                                     decoration: const BoxDecoration(
@@ -444,26 +558,36 @@ class _MobileViewState extends State<MobileView> {
                                       color: Colors.white,
                                     ),
                                     padding: const EdgeInsets.all(10),
-                                    width: double.maxFinite,
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            features[index],
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          color: Colors.transparent,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              20,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3.5,
+                                          child: Text(
+                                            locationBasedEventLIst[index].name,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
                                             style:
-                                                const TextStyle(fontSize: 20),
+                                                const TextStyle(fontSize: 15),
                                           ),
-                                          Text(
-                                            sponcersList[index],
-                                            style:
-                                                const TextStyle(fontSize: 20),
-                                          )
-                                        ]),
+                                        ),
+                                        const SizedBox()
+                                      ],
+                                    ),
                                   )
                                 ],
                               ),
                               Container(
+                                padding: const EdgeInsets.all(5),
                                 alignment: Alignment.center,
                                 height: MediaQuery.of(context).size.height / 8,
                                 width: MediaQuery.of(context).size.width / 10,
@@ -473,9 +597,14 @@ class _MobileViewState extends State<MobileView> {
                                     borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(20),
                                         bottomRight: Radius.circular(20))),
-                                child: const Text(
-                                  "10\nFeb",
-                                  style: TextStyle(
+                                child: Text(
+                                  // locationBasedEventLIst[index].date.toString(),
+                                  formatDate(
+                                      locationBasedEventLIst[index].date),
+                                  maxLines: 2,
+                                  softWrap: true,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
                                       fontSize: 15,
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700),
@@ -503,43 +632,34 @@ class TabletView extends StatefulWidget {
 }
 
 class _TabletViewState extends State<TabletView> {
-  var location = [
-    // AppStrings.eventHint,
-    "Event Location",
-    "Ahmedabad",
-    "surat",
-    "pune",
-    "banglore"
-  ];
-  String fixVelue = "Event Location";
+  int? _mySelection;
 
-  List imageList = [
-    "assets/images/sufinights.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-    "assets/images/luckyali.png",
-  ];
-
-  List sponcersList = [
-    "Sufi Nights Ft.",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-    "Knocksense",
-  ];
-
-  List features = [
-    "The Ali Brothers",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-    "Lucky Ali Live",
-  ];
+  GetLocactionProvider? getLocactionProvider;
 
   @override
+  void initState() {
+    super.initState();
+
+    Provider.of<GetLocactionProvider>(context, listen: false).getLocation();
+    Provider.of<GetLocactionProvider>(context, listen: false).getAllEvents();
+  }
+
+  int? lId;
+
+  String formatDate(DateTime date) => DateFormat("d MMM").format(date);
+
+  GetLocationModel? getLocationModel;
+  List<GetLocationModel> getLocationList = [];
+  @override
   Widget build(BuildContext context) {
+    final locationList =
+        context.select((GetLocactionProvider g) => g.getLocationList);
+
+    final locationBasedEventLIst =
+        context.select((GetLocactionProvider g) => g.locationBasedEventsList);
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -593,18 +713,18 @@ class _TabletViewState extends State<TabletView> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(20)),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
+                  child: DropdownButton<int>(
                     isExpanded: true,
                     dropdownColor: Colors.red,
                     icon: const Icon(
                       Icons.keyboard_arrow_down,
                       color: Colors.white,
                     ),
-                    items: location.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
+                    items: locationList.map((value) {
+                      return DropdownMenuItem<int>(
+                        value: value.id,
                         child: Text(
-                          value,
+                          value.name.toString(),
                           style: const TextStyle(
                               color: Colors.white, fontSize: 30),
                         ),
@@ -613,11 +733,25 @@ class _TabletViewState extends State<TabletView> {
                     onChanged: (newValue) {
                       setState(
                         () {
-                          fixVelue = newValue!;
+                          _mySelection = newValue;
+
+                          Provider.of<GetLocactionProvider>(context,
+                                  listen: false)
+                              .getLocation();
                         },
                       );
+
+                      Provider.of<GetLocactionProvider>(context, listen: false)
+                          .getLocationBasedEvents(_mySelection ?? 1);
+
+                      log(newValue.toString());
                     },
-                    value: fixVelue,
+                    hint: const Text(
+                      "Select Location",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    // value: _mySelection,
+                    value: _mySelection,
                   ),
                 ),
               ),
@@ -627,23 +761,25 @@ class _TabletViewState extends State<TabletView> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               child: GridView.builder(
+                  // physics: const NeverScrollableScrollPhysics(),
                   padding: EdgeInsets.zero,
                   scrollDirection: Axis.vertical,
-                  // physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      // childAspectRatio: 3.5 / 3,
-                      crossAxisSpacing: 00.0,
+                      childAspectRatio: 3.5 / 3,
+                      crossAxisSpacing: 10.0,
                       mainAxisSpacing: 0.0),
-                  itemCount: imageList.length,
+                  itemCount: locationBasedEventLIst.length,
                   itemBuilder: (BuildContext ctx, index) {
                     return GestureDetector(
                       onTap: () {
+                        final id = locationBasedEventLIst[index].id;
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    const LuckyAliLiveScreen()));
+                                builder: (context) => LuckyAliLiveScreen(
+                                      id: id,
+                                    )));
                       },
                       child: Column(
                         children: [
@@ -660,8 +796,9 @@ class _TabletViewState extends State<TabletView> {
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
                                         fit: BoxFit.fill,
-                                        image:
-                                            AssetImage("${imageList[index]}"),
+                                        image: NetworkImage(
+                                            locationBasedEventLIst[index]
+                                                .coverImage),
                                       ),
                                     ),
                                   ),
@@ -676,26 +813,20 @@ class _TabletViewState extends State<TabletView> {
                                     padding: const EdgeInsets.all(10),
                                     width: double.maxFinite,
                                     height:
-                                        MediaQuery.of(context).size.height / 10,
+                                        MediaQuery.of(context).size.height / 8,
                                     child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            features[index],
-                                            style: TextStyle(
-                                                fontSize: 35,
+                                            locationBasedEventLIst[index].name,
+                                            style: const TextStyle(
+                                                fontSize: 30,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          SizedBox(
+                                          const SizedBox(
                                             height: 10,
                                           ),
-                                          Text(
-                                            "sponcersList[index]",
-                                            style: TextStyle(
-                                                fontSize: 35,
-                                                fontWeight: FontWeight.bold),
-                                          )
                                         ]),
                                   )
                                 ],
@@ -710,9 +841,12 @@ class _TabletViewState extends State<TabletView> {
                                     borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(40),
                                         bottomRight: Radius.circular(40))),
-                                child: const Text(
-                                  "10\nFeb",
-                                  style: TextStyle(
+                                child: Text(
+                                  formatDate(
+                                      locationBasedEventLIst[index].date),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
                                       fontSize: 30,
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700),

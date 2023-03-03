@@ -1,41 +1,90 @@
+
+// ignore_for_file: must_be_immutable
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:knocksence_flutter_webapp/commom_widget/common_web_appbar.dart';
+import 'package:knocksence_flutter_webapp/providers/get_location_provider.dart';
 import 'package:knocksence_flutter_webapp/screens/ticket_screen.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 import 'package:knocksence_flutter_webapp/utils/color.dart';
+import 'package:provider/provider.dart';
 
 class LuckyAliLiveScreen extends StatefulWidget {
-  const LuckyAliLiveScreen({super.key});
+  const LuckyAliLiveScreen({super.key, required this.id});
+
+  final int id;
 
   @override
   State<LuckyAliLiveScreen> createState() => _LuckyAliLiveScreenState();
 }
 
 class _LuckyAliLiveScreenState extends State<LuckyAliLiveScreen> {
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+
+    log("mobileId___________________${widget.id}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      if (constraint.maxWidth > 1200) {
-        return const DesktopView();
-      } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
-        return const TabletView();
-      }
-      return const MobileView();
+      // if (constraint.maxWidth > 1200) {
+      //   return DesktopView(
+      //     id: widget.id,
+      //   );
+      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+      //   return TabletView(
+      //     id: widget.id,
+      //   );
+      // }
+      return MobileView(
+        id: widget.id,
+      );
     });
   }
 }
 
 class DesktopView extends StatefulWidget {
-  const DesktopView({super.key});
+  DesktopView({super.key, required this.id});
+
+  int id;
 
   @override
   State<DesktopView> createState() => _DesktopViewState();
 }
 
 class _DesktopViewState extends State<DesktopView> {
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+
+    log(
+        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+
+    log(
+        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+
+    log("mobileId___________________${widget.id}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.black,
         appBar: AppBar(
             automaticallyImplyLeading: false,
@@ -87,9 +136,9 @@ class _DesktopViewState extends State<DesktopView> {
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "RS 1000 ONWARDS",
-                        style: TextStyle(
+                      Text(
+                        "RS.${getLocactionProvider.eventDetailModel?.ticket.first.price.round().toString() ?? ''} ONWARDS",
+                        style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
                             fontSize: 40),
@@ -99,7 +148,7 @@ class _DesktopViewState extends State<DesktopView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const TicketScreen(),
+                              builder: (context) => TicketScreen(id: widget.id),
                             ),
                           );
                         },
@@ -126,6 +175,9 @@ class _DesktopViewState extends State<DesktopView> {
   }
 
   Widget _initialWidget() {
+    String formatDate(DateTime date) => DateFormat("d MMM yyyy").format(date);
+
+    String formatTime(DateTime time) => DateFormat("kk:mm a").format(time);
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -144,9 +196,9 @@ class _DesktopViewState extends State<DesktopView> {
           const SizedBox(
             height: 20,
           ),
-          const Text(
-            "KNOCKSENSE\nLUCKY ALI LIVE",
-            style: TextStyle(
+          Text(
+            getLocactionProvider.eventDetailModel?.name.toString() ?? '',
+            style: const TextStyle(
                 color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold),
           ),
           const SizedBox(
@@ -162,9 +214,9 @@ class _DesktopViewState extends State<DesktopView> {
               const SizedBox(
                 width: 20,
               ),
-              const Text(
-                "20 Nov 2022 at 04:00 PM",
-                style: TextStyle(fontSize: 30, color: Colors.black),
+              Text(
+                "${formatDate(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())} at ${formatTime(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())}",
+                style: const TextStyle(fontSize: 30, color: Colors.black),
               )
             ],
           ),
@@ -181,9 +233,10 @@ class _DesktopViewState extends State<DesktopView> {
               const SizedBox(
                 width: 20,
               ),
-              const Text(
-                "Outhouse By Office, Kanpur",
-                style: TextStyle(fontSize: 30, color: Colors.black),
+              Text(
+                getLocactionProvider.eventDetailModel?.location.toString() ??
+                    "",
+                style: const TextStyle(fontSize: 30, color: Colors.black),
               )
             ],
           ),
@@ -291,10 +344,11 @@ class _DesktopViewState extends State<DesktopView> {
 
   Widget _endWidget() {
     return Column(
-      children: const [
+      children: [
         Text(
-          "For existing Platinum/Select Members: Click on book tickets -> Type\nyour name & registered phone number -> Click on proceed to get\nmembership wise pricing.\n\n\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Members: Rs.1000\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Member: Rs.1000\n-> Ticket Price for Select & Select Mini Members: Rs. 300",
-          style: TextStyle(fontSize: 20),
+          getLocactionProvider.eventDetailModel?.description.toString() ?? "",
+          // "For existing Platinum/Select Members: Click on book tickets -> Type\nyour name & registered phone number -> Click on proceed to get\nmembership wise pricing.\n\n\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Members: Rs.1000\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Member: Rs.1000\n-> Ticket Price for Select & Select Mini Members: Rs. 300",
+          style: const TextStyle(fontSize: 20),
         )
       ],
     );
@@ -317,10 +371,12 @@ class _DesktopViewState extends State<DesktopView> {
               child: Container(
                 height: MediaQuery.of(context).size.height,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -332,13 +388,33 @@ class _DesktopViewState extends State<DesktopView> {
 }
 
 class MobileView extends StatefulWidget {
-  const MobileView({super.key});
+  const MobileView({super.key, required this.id});
+
+  final int id;
 
   @override
   State<MobileView> createState() => _MobileViewState();
 }
 
 class _MobileViewState extends State<MobileView> {
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+
+    log(
+        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+
+    log(
+        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+
+    log("mobileId___________________${widget.id}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -381,116 +457,153 @@ class _MobileViewState extends State<MobileView> {
             ],
           ),
         ),
-        body: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[sliverAppBarWidget()];
-          },
-          body: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Container(
-                        // height: MediaQuery.of(context).size.height,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              _initialWidget(),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              _endWidget(),
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height / 30,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-                color: Colors.transparent,
-                height: 100,
-                width: double.infinity,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "RS 1000 ONWARDS",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 20),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TicketScreen(),
+        body: Consumer<GetLocactionProvider>(builder: (context, value, index) {
+          return NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[sliverAppBarWidget()];
+              },
+              body: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            // height: MediaQuery.of(context).size.height,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: GetColor()
-                                  .getColorFromHex(AppColors().orange),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: const Text(
-                            "BUY NOW",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  _initialWidget(),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  _endWidget(),
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 30,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      )
-                    ]),
-              )
-            ],
-          ),
-        ));
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                    color: Colors.transparent,
+                    height: 100,
+                    width: double.infinity,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "RS.${getLocactionProvider.eventDetailModel?.ticket.first.price.round().toString() ?? ''} ONWARDS",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 20),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      TicketScreen(id: widget.id),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: GetColor()
+                                      .getColorFromHex(AppColors().orange),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: const Text(
+                                "BUY NOW",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                          )
+                        ]),
+                  )
+                ],
+              ));
+        }));
   }
 
   Widget _initialWidget() {
+    String formatDate(DateTime date) => DateFormat("dd MMM yyyy").format(date);
+
+    String formatTime(DateTime time) => DateFormat("kk:mm a").format(time);
+
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(
-            height: 30,
+            height: 15,
           ),
           Center(
             child: Container(
-              color: Colors.black,
-              width: MediaQuery.of(context).size.width / 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.black,
+              ),
+              width: MediaQuery.of(context).size.width / 5,
               height: 5,
             ),
           ),
           const SizedBox(
             height: 20,
           ),
-          const Text(
-            "KNOCKSENSE\nLUCKY ALI LIVE",
-            style: TextStyle(
-                color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: Text(
+                  getLocactionProvider.eventDetailModel?.name.toString() ?? '',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 15,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                      getLocactionProvider.eventDetailModel?.thumbnailImage ??
+                          ''),
+                ),
+              )
+            ],
           ),
-          const SizedBox(
-            height: 30,
-          ),
+          // const SizedBox(
+          //   height: 30,
+          // ),
           Row(
             children: [
               Image.asset(
@@ -499,11 +612,11 @@ class _MobileViewState extends State<MobileView> {
                 width: 20, //MediaQuery.of(context).size.width / 10,
               ),
               const SizedBox(
-                width: 20,
+                width: 10,
               ),
-              const Text(
-                "20 Nov 2022 at 04:00 PM",
-                style: TextStyle(fontSize: 20, color: Colors.black),
+              Text(
+                "${formatDate(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())} at ${formatTime(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())}",
+                style: const TextStyle(fontSize: 15, color: Colors.black),
               )
             ],
           ),
@@ -520,11 +633,16 @@ class _MobileViewState extends State<MobileView> {
                 // width: MediaQuery.of(context).size.width / 4,
               ),
               const SizedBox(
-                width: 20,
+                width: 10,
               ),
-              const Text(
-                "Outhouse By Office, Kanpur",
-                style: TextStyle(fontSize: 20, color: Colors.black),
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: Text(
+                  getLocactionProvider.eventDetailModel?.location ?? "",
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                ),
               )
             ],
           ),
@@ -532,10 +650,10 @@ class _MobileViewState extends State<MobileView> {
             height: 30,
           ),
           Container(
-            padding: const EdgeInsets.fromLTRB(15, 30, 15, 00),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(15),
               color: GetColor().getColorFromHex(AppColors().liteGrey),
             ),
             child: Column(
@@ -543,11 +661,8 @@ class _MobileViewState extends State<MobileView> {
               children: [
                 const Text(
                   "Knocksense Member Benefits",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                // const SizedBox(
-                //   height: 20,
-                // ),
                 DefaultTabController(
                   length: 3,
                   child: Column(
@@ -590,10 +705,10 @@ class _MobileViewState extends State<MobileView> {
                         height: 2,
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       const SizedBox(
-                        height: 80.0,
+                        height: 40.0,
                         child: TabBarView(
                           // controller: _controller,
                           children: <Widget>[
@@ -631,10 +746,11 @@ class _MobileViewState extends State<MobileView> {
 
   Widget _endWidget() {
     return Column(
-      children: const [
+      children: [
         Text(
-          "For existing Platinum/Select Members: Click on book tickets -> Type\nyour name & registered phone number -> Click on proceed to get\nmembership wise pricing.\n\n\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Members: Rs.1000\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Member: Rs.1000\n-> Ticket Price for Select & Select Mini Members: Rs. 300",
-          style: TextStyle(fontSize: 15),
+          getLocactionProvider.eventDetailModel?.description.toString() ?? "",
+          // "For existing Platinum/Select Members: Click on book tickets -> Type\nyour name & registered phone number -> Click on proceed to get\nmembership wise pricing.\n\n\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Members: Rs.1000\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Member: Rs.1000\n-> Ticket Price for Select & Select Mini Members: Rs. 300",
+          style: const TextStyle(fontSize: 15),
         )
       ],
     );
@@ -645,7 +761,7 @@ class _MobileViewState extends State<MobileView> {
       automaticallyImplyLeading: false,
       // toolbarHeight: 85,
       backgroundColor: Colors.transparent,
-      expandedHeight: MediaQuery.of(context).size.height / 2,
+      expandedHeight: MediaQuery.of(context).size.height / 3,
       floating: true,
       pinned: false,
       flexibleSpace: FlexibleSpaceBar(
@@ -657,10 +773,13 @@ class _MobileViewState extends State<MobileView> {
               child: Container(
                 // height: MediaQuery.of(context).size.height / 2,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
@@ -672,13 +791,33 @@ class _MobileViewState extends State<MobileView> {
 }
 
 class TabletView extends StatefulWidget {
-  const TabletView({super.key});
+  TabletView({super.key, required this.id});
+
+  int id;
 
   @override
   State<TabletView> createState() => _TabletViewState();
 }
 
 class _TabletViewState extends State<TabletView> {
+  late GetLocactionProvider getLocactionProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    getLocactionProvider =
+        Provider.of<GetLocactionProvider>(context, listen: false);
+    getLocactionProvider.getEvetDetail(widget.id);
+
+    log(
+        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+
+    log(
+        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+
+    log("mobileId___________________${widget.id}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -762,9 +901,9 @@ class _TabletViewState extends State<TabletView> {
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "RS 1000 ONWARDS",
-                                style: TextStyle(
+                              Text(
+                                "RS.${getLocactionProvider.eventDetailModel?.ticket.first.price.round().toString() ?? ''} ONWARDS",
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 30),
@@ -775,7 +914,7 @@ class _TabletViewState extends State<TabletView> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          const TicketScreen(),
+                                          TicketScreen(id: widget.id),
                                     ),
                                   );
                                 },
@@ -806,6 +945,9 @@ class _TabletViewState extends State<TabletView> {
   }
 
   Widget _initialWidget() {
+    String formatDate(DateTime date) => DateFormat("d MMM yyyy").format(date);
+
+    String formatTime(DateTime time) => DateFormat("kk:mm a").format(time);
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -824,9 +966,9 @@ class _TabletViewState extends State<TabletView> {
           const SizedBox(
             height: 20,
           ),
-          const Text(
-            "KNOCKSENSE\nLUCKY ALI LIVE",
-            style: TextStyle(
+          Text(
+            getLocactionProvider.eventDetailModel?.name ?? "",
+            style: const TextStyle(
                 color: Colors.black, fontSize: 50, fontWeight: FontWeight.bold),
           ),
           const SizedBox(
@@ -842,9 +984,9 @@ class _TabletViewState extends State<TabletView> {
               const SizedBox(
                 width: 20,
               ),
-              const Text(
-                "20 Nov 2022 at 04:00 PM",
-                style: TextStyle(fontSize: 40, color: Colors.black),
+              Text(
+                "${formatDate(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())} at ${formatTime(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())}",
+                style: const TextStyle(fontSize: 40, color: Colors.black),
               )
             ],
           ),
@@ -863,9 +1005,10 @@ class _TabletViewState extends State<TabletView> {
               const SizedBox(
                 width: 20,
               ),
-              const Text(
-                "Outhouse By Office, Kanpur",
-                style: TextStyle(fontSize: 40, color: Colors.black),
+              Text(
+                getLocactionProvider.eventDetailModel?.location.toString() ??
+                    "",
+                style: const TextStyle(fontSize: 40, color: Colors.black),
               )
             ],
           ),
@@ -972,10 +1115,10 @@ class _TabletViewState extends State<TabletView> {
 
   Widget _endWidget() {
     return Column(
-      children: const [
+      children: [
         Text(
-          "For existing Platinum/Select Members: Click on book tickets -> Type\nyour name & registered phone number -> Click on proceed to get\nmembership wise pricing.\n\n\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Members: Rs.1000\n-> Ticket Price for Select & Select Mini Member: Rs. 300\n-> Rs.400 Off for Platinum Members\n-> Ticket Price for a Non-KnockOFF Member: Rs.1000\n-> Ticket Price for Select & Select Mini Members: Rs. 300",
-          style: TextStyle(fontSize: 50),
+          getLocactionProvider.eventDetailModel?.description.toString() ?? "",
+          style: const TextStyle(fontSize: 50),
         )
       ],
     );
@@ -998,10 +1141,12 @@ class _TabletViewState extends State<TabletView> {
               child: Container(
                 // height: MediaQuery.of(context).size.height / 2,
                 width: double.maxFinite,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.transparent,
                     image: DecorationImage(
-                        image: AssetImage("assets/images/luckyali.png"),
+                        image: NetworkImage(
+                            getLocactionProvider.eventDetailModel?.coverImage ??
+                                ""),
                         fit: BoxFit.fill)),
               ),
             ),
