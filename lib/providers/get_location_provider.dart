@@ -17,6 +17,8 @@ class GetLocactionProvider extends BaseProvider {
   EventDetailModel? eventDetailModel;
   List<EventDetailModel> eventDetailList = [];
 
+  List<LocationBasedEventModel> searchList = [];
+
   VerifyIdModel? verifyIdModel;
   // TicketDetailModel? ticketDetailModel;
 
@@ -26,7 +28,7 @@ class GetLocactionProvider extends BaseProvider {
     var responseData = await _getLocationRepo.getLocationApi();
 
     if (responseData['code'] == 900) {
-      developer.log(responseData.toString(), name: 'Response of get Location');
+      // developer.log(responseData.toString(), name: 'Response of get Location');
       getLocationList = responseData["data"].map<GetLocationModel>((location) {
         return GetLocationModel.fromJson(location);
       }).toList();
@@ -42,8 +44,8 @@ class GetLocactionProvider extends BaseProvider {
     var responseData = await _getLocationRepo.getLocationBasedEventsApi(id);
 
     if (responseData['code'] == 900) {
-      developer.log(responseData.toString(),
-          name: 'Response of get LocationBasedEvents');
+      // developer.log(responseData.toString(),
+      //     name: 'Response of get LocationBasedEvents');
       locationBasedEventsList = responseData["data"]["event_list"]
           .map<LocationBasedEventModel>((location) {
         return LocationBasedEventModel.fromJson(location);
@@ -57,8 +59,6 @@ class GetLocactionProvider extends BaseProvider {
           name: 'Error of get LocationBasedEvents ');
     }
   }
-
-  
 
   Future getAllEvents() async {
     var responseData = await _getLocationRepo.getAllEventsApi();
@@ -79,12 +79,16 @@ class GetLocactionProvider extends BaseProvider {
     }
   }
 
-   Future<dynamic> getSearchEvetDetail(int id, String day) async {
+  Future<dynamic> getSearchEvetDetail(int id, String day) async {
     try {
       Map<String, dynamic> responseData =
           await _getLocationRepo.getSearchBasedEventApi(id, day);
-      if (responseData['error'] == false) {
-        eventDetailModel = EventDetailModel.fromJson(responseData["data"]);
+      if (responseData['code'] == 900) {
+        // eventDetailModel = EventDetailModel.fromJson(responseData["data"]);
+        searchList = responseData["data"]["event_list"]
+            .map<LocationBasedEventModel>((location) {
+          return LocationBasedEventModel.fromJson(location);
+        }).toList();
 
         log("EvtDeatails__________________$eventDetailModel");
 
@@ -129,9 +133,8 @@ class GetLocactionProvider extends BaseProvider {
         log("verifyIdModel__________________$verifyIdModel");
 
         developer.log(responseData.toString(), name: 'verifyIdModel');
-       
+
         // ignore: use_build_context_synchronously
-        
 
         notifyListeners();
         return verifyIdModel;

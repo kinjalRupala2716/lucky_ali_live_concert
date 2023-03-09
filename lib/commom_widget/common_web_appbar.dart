@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:knocksence_flutter_webapp/screens/event_dashboard.dart';
 import 'package:knocksence_flutter_webapp/utils/app_string.dart';
 
 class CommonWebAppbar extends StatefulWidget {
@@ -13,12 +14,21 @@ class _CommonWebAppbarState extends State<CommonWebAppbar> {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          "assets/logos/KnockScenseLogoWhite2.png",
-          // height: MediaQuery.of(context).size.height / 6,
-          width: MediaQuery.of(context).size.width / 3,
+        GestureDetector(
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const EventDashboardScreen()),
+                (route) => false);
+          },
+          child: Image.asset(
+            "assets/logos/KnockScenseLogoWhite2.png",
+            height: MediaQuery.of(context).size.height / 8,
+            // width: MediaQuery.of(context).size.width / 3,
+          ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -45,4 +55,3 @@ class _CommonWebAppbarState extends State<CommonWebAppbar> {
     );
   }
 }
-

@@ -8,28 +8,7 @@ import 'package:knocksence_flutter_webapp/utils/my_sharepreferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BaseRepository {
-  // final _authBaseUrl = 'https://knockoff.xyz/api/v1/';
-
-  // For post request
-  // Future<http.Response> postHttp({
-  //   required var data,
-  //   required String api,
-  //   String? token,
-  //   Map<String, String>? headers,
-  //   String? baseUrl,
-  // }) async {
-  //   // SharedPreferences myPrefs = await SharedPreferences.getInstance();
-  //   // String? authToken =
-  //   //     MySharedPreferences.instance.getStringValue("authToken", "", myPrefs);
-  //   // log(api, name: 'postHttp');
-  //   // log(data.toString(), name: 'postHttp');
-
-  //   return http.post(
-  //     Uri.parse(baseUrl.toString()  + api),
-
-  //     body: json.encode(data),
-  //   );
-  // }
+  
 
   // For get request
   Future<http.Response> getHttp({

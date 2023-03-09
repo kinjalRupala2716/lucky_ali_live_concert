@@ -618,7 +618,7 @@ class _MobileViewState extends State<MobileView> {
                 "CHECKOUT",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 25,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -631,6 +631,7 @@ class _MobileViewState extends State<MobileView> {
                   height: MediaQuery.of(context).size.height / 5,
                   width: MediaQuery.of(context).size.width / 2.7,
                   decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
                       image: DecorationImage(
                           fit: BoxFit.fill,
                           image: NetworkImage(getLocactionProvider
@@ -704,9 +705,7 @@ class _MobileViewState extends State<MobileView> {
                         width: 10,
                       ),
                       Text(
-                        "${formatTime(
-                                getLocactionProvider.eventDetailModel?.date ??
-                                    DateTime.now())} Onwards",
+                        "${formatTime(getLocactionProvider.eventDetailModel?.date ?? DateTime.now())} Onwards",
                         style:
                             const TextStyle(color: Colors.white, fontSize: 15),
                       )

@@ -869,7 +869,7 @@ class _MobileViewState extends State<MobileView> {
                 "Choose Ticket Type",
                 style: TextStyle(
                     color: GetColor().getColorFromHex(AppColors().liteGrey),
-                    fontSize: 30),
+                    fontSize: 20),
               ),
             ),
             const SizedBox(
@@ -893,7 +893,8 @@ class _MobileViewState extends State<MobileView> {
                           return _initialWidget1(
                               count,
                               getLocactionProvider
-                                  .eventDetailModel!.ticket[index]);
+                                  .eventDetailModel!.ticket[index],
+                              getLocactionProvider.eventDetailModel!.ticket);
                         },
                       );
                     },
@@ -970,6 +971,7 @@ class _MobileViewState extends State<MobileView> {
   Widget _initialWidget1(
     int count,
     Ticket ticket,
+    List<Ticket> listTicket,
   ) {
     String? fixVelue = "View Details";
 
@@ -979,6 +981,10 @@ class _MobileViewState extends State<MobileView> {
     List<Map<String, dynamic>> userDetail = [
       // {"name": '', "mobile": '', "is_from_event_booking_site": 1},
     ];
+
+    List<String>? countryname;
+
+    List<String> countries = ["Nepal", "India", "USA"];
 
     return StatefulBuilder(builder: (context, setState) {
       return SingleChildScrollView(
@@ -1019,7 +1025,7 @@ class _MobileViewState extends State<MobileView> {
                             "Back",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: 17,
                             ),
                           )
                         ],
@@ -1031,7 +1037,7 @@ class _MobileViewState extends State<MobileView> {
                         "BOOK TICKETS",
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1056,7 +1062,7 @@ class _MobileViewState extends State<MobileView> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             color: Colors.black,
-                            fontSize: 25,
+                            fontSize: 20,
                             fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(
@@ -1067,9 +1073,9 @@ class _MobileViewState extends State<MobileView> {
                         children: [
                           Text(
                             // "₹ 849",
-                            ticket.price.toString(),
+                            "₹${ticket.price.round().toString()}",
                             style: const TextStyle(
-                                fontSize: 20, color: Colors.black),
+                                fontSize: 18, color: Colors.black),
                           ),
                           count < 1
                               ? Row(
@@ -1104,7 +1110,7 @@ class _MobileViewState extends State<MobileView> {
                                     Text(
                                       "Add",
                                       style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 18,
                                           color: GetColor().getColorFromHex(
                                               AppColors().orange)),
                                     ),
@@ -1142,7 +1148,7 @@ class _MobileViewState extends State<MobileView> {
                                     Text(
                                       "Add",
                                       style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 18,
                                           color: GetColor().getColorFromHex(
                                               AppColors().orange)),
                                     ),
@@ -1176,9 +1182,9 @@ class _MobileViewState extends State<MobileView> {
                         height: 20,
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width / 2,
+                        width: MediaQuery.of(context).size.width,
                         child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
+                          child: DropdownButton<List<String>>(
                             hint: const Text("View Details"),
                             dropdownColor: Colors.white,
                             isExpanded: true,
@@ -1187,25 +1193,55 @@ class _MobileViewState extends State<MobileView> {
                               color: Colors.black,
                               size: 30,
                             ),
-                            items: getLocactionProvider.eventDetailList
-                                .map((value) {
-                              return DropdownMenuItem<String>(
-                                value: value.description.toString(),
-                                child: Text(
-                                  value.description.toString(),
-                                  style: const TextStyle(
-                                      color: Colors.black, fontSize: 30),
+                            items: listTicket.map((value) {
+                              // var iterable =
+                              //     Iterable.generate(value.description.length);
+                              var dess = value.description;
+                              var des = dess.iterator;
+                              var actualString;
+                              while (des.moveNext()) {
+                                actualString = des.current;
+                                print(actualString);
+                              }
+                              return DropdownMenuItem<List<String>>(
+                                value: value.description,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          color: GetColor().getColorFromHex(
+                                              AppColors().golden),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Image.asset(
+                                          "assets/icons/ticketsmallicon.png"),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width /
+                                          1.7,
+                                      child: Text(
+                                        value.description.toString(),
+                                        maxLines: 2,
+                                        softWrap: true,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            color: Colors.black, fontSize: 14),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             }).toList(),
                             onChanged: (newValue) {
-                              setState(
-                                () {
-                                  fixVelue = newValue!;
-                                },
-                              );
+                              // setState(
+                              //   () {
+                              //     countryname = newValue;
+                              //   },
+                              // );
                             },
-                            value: fixVelue,
+                            value: countryname,
                           ),
                         ),
                       ),
@@ -2116,7 +2152,7 @@ class _TabletViewState extends State<TabletView> {
                             MaterialPageRoute(
                                 builder: (context) => CheckOutScreen(
                                       id: widget.id,
-                                      data: const [],
+                                      data: [],
                                       tId: 1,
                                       price: 0.0,
                                       quantity: 0,

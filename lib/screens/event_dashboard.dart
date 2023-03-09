@@ -23,11 +23,11 @@ class _EventDashboardScreenState extends State<EventDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      // if (constraint.maxWidth > 1200) {
-      //   return const DesktopView();
-      // } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
-      //   return const TabletView();
-      // }
+      if (constraint.maxWidth > 1200) {
+        return const DesktopView();
+      } else if (constraint.maxWidth > 800 && constraint.maxWidth < 1200) {
+        return const TabletView();
+      }
       return const MobileView();
     });
   }
@@ -41,39 +41,7 @@ class DesktopView extends StatefulWidget {
 }
 
 class _DesktopViewState extends State<DesktopView> {
-  // var location = [
-  //   // AppStrings.eventHint,
-  //   "Event Location",
-  //   "Ahmedabad",
-  //   "surat",
-  //   "pune",
-  //   "banglore"
-  // ];
   String fixVelue = "Event Location";
-
-  // List imageList = [
-  //   "assets/images/sufinights.png",
-  //   "assets/images/luckyali.png",
-  //   "assets/images/luckyali.png",
-  //   "assets/images/luckyali.png",
-  //   "assets/images/luckyali.png",
-  // ];
-
-  // List sponcersList = [
-  //   "Sufi Nights Ft.",
-  //   "Knocksense",
-  //   "Knocksense",
-  //   "Knocksense",
-  //   "Knocksense",
-  // ];
-
-  // List features = [
-  //   "The Ali Brothers",
-  //   "Lucky Ali Live",
-  //   "Lucky Ali Live",
-  //   "Lucky Ali Live",
-  //   "Lucky Ali Live",
-  // ];
 
   GetLocactionProvider? getLocactionProvider;
   int? _mySelection;
@@ -109,10 +77,10 @@ class _DesktopViewState extends State<DesktopView> {
           backgroundColor: Colors.black,
           title: const CommonWebAppbar()),
       body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        // physics: const AlwaysScrollableScrollPhysics(),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
-            padding: const EdgeInsets.only(left: 60, top: 50),
+            padding: const EdgeInsets.only(left: 50, top: 50),
             child: Text(
               AppStrings.event,
               style: TextStyle(
@@ -127,7 +95,7 @@ class _DesktopViewState extends State<DesktopView> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Container(
               padding: const EdgeInsets.only(left: 20),
-              width: MediaQuery.of(context).size.width / 6,
+              width: MediaQuery.of(context).size.width / 3,
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.white, width: 4),
                   color: Colors.transparent,
@@ -149,7 +117,7 @@ class _DesktopViewState extends State<DesktopView> {
             ),
             Container(
               padding: const EdgeInsets.only(left: 20),
-              width: MediaQuery.of(context).size.width / 6,
+              width: MediaQuery.of(context).size.width / 3,
               decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey, width: 4),
                   color: Colors.transparent,
@@ -197,21 +165,21 @@ class _DesktopViewState extends State<DesktopView> {
               ),
             ),
           ]),
-          SizedBox(
-            height: MediaQuery.of(context).size.height / 6,
+          const SizedBox(
+            height: 20,
           ),
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 1.1,
             child: GridView.builder(
-                // padding: EdgeInsets.all(50),
+                padding: const EdgeInsets.all(30),
                 scrollDirection: Axis.vertical,
-                physics: const NeverScrollableScrollPhysics(),
+                // physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
-                    childAspectRatio: 3 / 4,
+                    childAspectRatio: 1,
                     crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0),
+                    mainAxisSpacing: 0.0),
                 itemCount: locationBasedEventLIst.length,
                 itemBuilder: (BuildContext ctx, index) {
                   return GestureDetector(
@@ -232,24 +200,13 @@ class _DesktopViewState extends State<DesktopView> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Container(
-                                //   decoration: const BoxDecoration(
-                                //       color: Colors.white,
-                                //       borderRadius: BorderRadius.only(
-                                //           topLeft: Radius.circular(50),
-                                //           topRight: Radius.circular(50))),
-                                //   child: Image.network(
-                                //     locationBasedEventLIst[index].coverImage,
-                                //     fit: BoxFit.fill,
-                                //   ),
-                                // ),
                                 ClipRRect(
                                   borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(20),
                                       topRight: Radius.circular(20)),
                                   child: Container(
                                     height:
-                                        MediaQuery.of(context).size.height / 4,
+                                        MediaQuery.of(context).size.height / 3,
                                     width: MediaQuery.of(context).size.width,
                                     decoration: BoxDecoration(
                                         image: DecorationImage(
@@ -269,23 +226,11 @@ class _DesktopViewState extends State<DesktopView> {
                                       borderRadius: BorderRadius.only(
                                           bottomLeft: Radius.circular(50),
                                           bottomRight: Radius.circular(50))),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        locationBasedEventLIst[index].name,
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      // Text(
-                                      //   features[index],
-                                      //   style: const TextStyle(
-                                      //       fontSize: 18,
-                                      //       fontWeight: FontWeight.w700),
-                                      // ),
-                                    ],
+                                  child: Text(
+                                    locationBasedEventLIst[index].name,
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ),
                               ],
@@ -293,12 +238,12 @@ class _DesktopViewState extends State<DesktopView> {
                             Container(
                               alignment: Alignment.center,
                               height: MediaQuery.of(context).size.height / 5,
-                              width: MediaQuery.of(context).size.width / 30,
+                              width: MediaQuery.of(context).size.width / 25,
                               decoration: BoxDecoration(
                                   color: GetColor()
                                       .getColorFromHex(AppColors().appbarColor),
                                   borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(50),
+                                      topLeft: Radius.circular(30),
                                       bottomRight: Radius.circular(50))),
                               child: Text(
                                 formatDate(locationBasedEventLIst[index].date),
@@ -357,8 +302,11 @@ class _MobileViewState extends State<MobileView> {
     final locationList =
         context.select((GetLocactionProvider g) => g.getLocationList);
 
+    final searchList = context.select((GetLocactionProvider g) => g.searchList);
+
     final locationBasedEventLIst =
         context.select((GetLocactionProvider g) => g.locationBasedEventsList);
+    // final totalList = searchList - locationBasedEventLIst;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -428,40 +376,23 @@ class _MobileViewState extends State<MobileView> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     width: MediaQuery.of(context).size.width / 2.3,
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey, width: 4),
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(20)),
-                    child:
-                        //  DropdownButton<GetLocationModel>(
-                        //   hint: Text("Select a user"),
-                        //   value: getLocationModel,
-                        //   onChanged: (newValue) {
-                        //     setState(() {
-                        //       getLocationModel = newValue;
-                        //     });
-                        //   },
-                        //   items: getLocationList.map((GetLocationModel user) {
-                        //     return DropdownMenuItem<GetLocationModel>(
-                        //       value: user,
-                        //       child: Text(
-                        //         user.name.toString(),
-                        //         style: const TextStyle(color: Colors.white),
-                        //       ),
-                        //     );
-                        //   }).toList(),
-                        // ),
-
-                        DropdownButtonHideUnderline(
+                    child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         isExpanded: true,
+                        icon: const Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.white,
+                        ),
                         dropdownColor: Colors.black,
                         items: locationList.map((countryone) {
                           return DropdownMenuItem<int>(
-                            value: countryone
-                                .id, //locationList[index].data[index].name,
+                            value: countryone.id,
                             child: Text(
                               countryone.name.toString(),
                               style: const TextStyle(
@@ -503,119 +434,278 @@ class _MobileViewState extends State<MobileView> {
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 1.1,
-              child: GridView.builder(
-                  padding: const EdgeInsets.all(10),
-                  scrollDirection: Axis.vertical,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 3.5 / 5,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 0.0),
-                  itemCount: locationBasedEventLIst.length,
-                  itemBuilder: (BuildContext ctx, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        var id = locationBasedEventLIst[index].id;
-                        log("id___________________________-$id");
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    LuckyAliLiveScreen(id: id)));
-                      },
-                      child: Column(
-                        children: [
-                          Stack(
-                            alignment: Alignment.bottomRight,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        topRight: Radius.circular(20)),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              5,
-                                      width: MediaQuery.of(context).size.width,
-                                      decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: NetworkImage(
-                                                  locationBasedEventLIst[index]
-                                                      .coverImage))),
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
-                                      ),
-                                      color: Colors.white,
-                                    ),
-                                    padding: const EdgeInsets.all(10),
-                                    width:
-                                        MediaQuery.of(context).size.width / 2,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          color: Colors.transparent,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              20,
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3.5,
-                                          child: Text(
-                                            locationBasedEventLIst[index].name,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style:
-                                                const TextStyle(fontSize: 15),
+              child: locationBasedEventLIst.isNotEmpty
+                  ? GridView.builder(
+                      padding: const EdgeInsets.all(10),
+                      scrollDirection: Axis.vertical,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 3.5 / 5,
+                              crossAxisSpacing: 10.0,
+                              mainAxisSpacing: 0.0),
+                      itemCount: eventController.text.toString().isEmpty
+                          ? locationBasedEventLIst.length
+                          : searchList.length,
+                      itemBuilder: (BuildContext ctx, index) {
+                        return GestureDetector(
+                            onTap: () {
+                              var id = locationBasedEventLIst[index].id;
+                              log("id___________________________-$id");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          LuckyAliLiveScreen(id: id)));
+                            },
+                            child: eventController.text.toString().isEmpty
+                                ? Column(
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.bottomRight,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        topRight:
+                                                            Radius.circular(
+                                                                20)),
+                                                child: Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      5,
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          fit: BoxFit.fill,
+                                                          image: NetworkImage(
+                                                              locationBasedEventLIst[
+                                                                      index]
+                                                                  .coverImage))),
+                                                ),
+                                              ),
+                                              Container(
+                                                decoration: const BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    bottomLeft:
+                                                        Radius.circular(20),
+                                                    bottomRight:
+                                                        Radius.circular(20),
+                                                  ),
+                                                  color: Colors.white,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      color: Colors.transparent,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              20,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              3.5,
+                                                      child: Text(
+                                                        locationBasedEventLIst[
+                                                                index]
+                                                            .name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 2,
+                                                        style: const TextStyle(
+                                                            fontSize: 15),
+                                                      ),
+                                                    ),
+                                                    const SizedBox()
+                                                  ],
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                        ),
-                                        const SizedBox()
-                                      ],
-                                    ),
+                                          Container(
+                                            padding: const EdgeInsets.all(5),
+                                            alignment: Alignment.center,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                8,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                10,
+                                            decoration: BoxDecoration(
+                                                color: GetColor()
+                                                    .getColorFromHex(AppColors()
+                                                        .appbarColor),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        bottomRight:
+                                                            Radius.circular(
+                                                                20))),
+                                            child: Text(
+                                              // locationBasedEventLIst[index].date.toString(),
+                                              formatDate(
+                                                  locationBasedEventLIst[index]
+                                                      .date),
+                                              maxLines: 2,
+                                              softWrap: true,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ],
                                   )
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(5),
-                                alignment: Alignment.center,
-                                height: MediaQuery.of(context).size.height / 8,
-                                width: MediaQuery.of(context).size.width / 10,
-                                decoration: BoxDecoration(
-                                    color: GetColor().getColorFromHex(
-                                        AppColors().appbarColor),
-                                    borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        bottomRight: Radius.circular(20))),
-                                child: Text(
-                                  // locationBasedEventLIst[index].date.toString(),
-                                  formatDate(
-                                      locationBasedEventLIst[index].date),
-                                  maxLines: 2,
-                                  softWrap: true,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                                : Column(
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.bottomRight,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        topRight:
+                                                            Radius.circular(
+                                                                20)),
+                                                child: Container(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      5,
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                          fit: BoxFit.fill,
+                                                          image: NetworkImage(
+                                                              searchList[index]
+                                                                  .coverImage))),
+                                                ),
+                                              ),
+                                              Container(
+                                                decoration: const BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    bottomLeft:
+                                                        Radius.circular(20),
+                                                    bottomRight:
+                                                        Radius.circular(20),
+                                                  ),
+                                                  color: Colors.white,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    2,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      color: Colors.transparent,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              20,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              3.5,
+                                                      child: Text(
+                                                        searchList[index].name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 2,
+                                                        style: const TextStyle(
+                                                            fontSize: 15),
+                                                      ),
+                                                    ),
+                                                    const SizedBox()
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.all(5),
+                                            alignment: Alignment.center,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                8,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                10,
+                                            decoration: BoxDecoration(
+                                                color: GetColor()
+                                                    .getColorFromHex(AppColors()
+                                                        .appbarColor),
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(20),
+                                                        bottomRight:
+                                                            Radius.circular(
+                                                                20))),
+                                            child: Text(
+                                              // locationBasedEventLIst[index].date.toString(),
+                                              formatDate(
+                                                  searchList[index].date),
+                                              maxLines: 2,
+                                              softWrap: true,
+                                              textAlign: TextAlign.center,
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ));
+                      })
+                  : const Text(
+                      "No upcoming events for this location, \nstay tuned for more updates!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
             ),
           )
         ]),
@@ -802,38 +892,50 @@ class _TabletViewState extends State<TabletView> {
                                       ),
                                     ),
                                   ),
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(40),
-                                        bottomRight: Radius.circular(40),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(40),
+                                            // bottomRight: Radius.circular(40),
+                                          ),
+                                          color: Colors.white,
+                                        ),
+                                        padding: const EdgeInsets.all(10),
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                2.8,
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                6,
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                locationBasedEventLIst[index]
+                                                    .name,
+                                                style: const TextStyle(
+                                                    fontSize: 30,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                            ]),
                                       ),
-                                      color: Colors.white,
-                                    ),
-                                    padding: const EdgeInsets.all(10),
-                                    width: double.maxFinite,
-                                    height:
-                                        MediaQuery.of(context).size.height / 8,
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            locationBasedEventLIst[index].name,
-                                            style: const TextStyle(
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                        ]),
+                                      SizedBox()
+                                    ],
                                   )
                                 ],
                               ),
                               Container(
                                 alignment: Alignment.center,
-                                height: MediaQuery.of(context).size.height / 7,
+                                height: MediaQuery.of(context).size.height / 5,
                                 width: MediaQuery.of(context).size.width / 8,
                                 decoration: BoxDecoration(
                                     color: GetColor().getColorFromHex(

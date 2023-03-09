@@ -1,4 +1,3 @@
-
 // ignore_for_file: must_be_immutable
 
 import 'dart:developer';
@@ -72,11 +71,9 @@ class _DesktopViewState extends State<DesktopView> {
         Provider.of<GetLocactionProvider>(context, listen: false);
     getLocactionProvider.getEvetDetail(widget.id);
 
-    log(
-        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+    log("name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
 
-    log(
-        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+    log("image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
 
     log("mobileId___________________${widget.id}");
   }
@@ -406,11 +403,9 @@ class _MobileViewState extends State<MobileView> {
         Provider.of<GetLocactionProvider>(context, listen: false);
     getLocactionProvider.getEvetDetail(widget.id);
 
-    log(
-        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+    log("name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
 
-    log(
-        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+    log("image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
 
     log("mobileId___________________${widget.id}");
   }
@@ -596,7 +591,7 @@ class _MobileViewState extends State<MobileView> {
                   borderRadius: BorderRadius.circular(5),
                   child: Image.network(
                       getLocactionProvider.eventDetailModel?.thumbnailImage ??
-                          ''),
+                          "assets/icons/galleryIcon.png"),
                 ),
               )
             ],
@@ -809,11 +804,9 @@ class _TabletViewState extends State<TabletView> {
         Provider.of<GetLocactionProvider>(context, listen: false);
     getLocactionProvider.getEvetDetail(widget.id);
 
-    log(
-        "name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
+    log("name_____________________${getLocactionProvider.eventDetailModel?.name.toString()}");
 
-    log(
-        "image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
+    log("image_____________________${getLocactionProvider.eventDetailModel?.coverImage}");
 
     log("mobileId___________________${widget.id}");
   }

@@ -7,6 +7,7 @@ class AppColors {
   String hintColor = "#8F8F8F";
   String pinkColor = "#F3D8DA";
   String maroonColor = "#883E41";
+  String golden = "#C5AF68";
 }
 
 class GetColor {

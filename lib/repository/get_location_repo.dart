@@ -15,8 +15,7 @@ class GetLocationRepo extends BaseRepository {
   static const getLocationBasedEvent = "event/web-events";
   static const getEvetDetails = "event/detail/";
   static const verifyOrderId = "event/orders/";
-  static const getSearchApi =
-      "event/web-events?";
+  static const getSearchApi = "event/web-events";
 
   //Post Api
   static const signin = "users/sign-in";
@@ -64,18 +63,18 @@ class GetLocationRepo extends BaseRepository {
       baseUrl: baseURL,
       api: api,
     );
-    // developer.log(response.body, name: 'response of get Event Details');
+    developer.log(response.body, name: 'response of get Event Details');
     developer.log(baseURL + api, name: 'api of get search Event');
     return json.decode(response.body);
   }
 
   Future<dynamic> getSearchBasedEventApi(int id, String day) async {
-    final api = "$getSearchApi+location_id=$id&search=$day";
+    final api = "$getSearchApi?location_id=$id&search=$day";
     final response = await getHttp(
       baseUrl: baseURL,
       api: api,
     );
-    // developer.log(response.body, name: 'response of get Event Details');
+    developer.log(response.body, name: 'response of get Event Details');
     developer.log(baseURL + api, name: 'api of get search Event');
     return json.decode(response.body);
   }
@@ -98,7 +97,7 @@ class GetLocationRepo extends BaseRepository {
       // base: baseURL,
       api: api,
     );
-    // developer.log(response.body, name: 'response of get Event Details');
+    developer.log(response.body, name: 'response of get Event Details');
     developer.log(baseURL + api, name: 'api of get search Event');
     return json.decode(response.body);
   }
@@ -110,7 +109,7 @@ class GetLocationRepo extends BaseRepository {
       // base: baseURL,
       api: api,
     );
-    // developer.log(response.body, name: 'response of get Event Details');
+    developer.log(response.body, name: 'response of get Event Details');
     developer.log(baseURL + api, name: 'api of otp verification');
     return json.decode(response.body);
   }
